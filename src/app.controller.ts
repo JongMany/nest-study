@@ -1,11 +1,11 @@
 import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 
-@Controller()
+@Controller('movie')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get('movie')
+  @Get('')
   getMovies() {
     return [
       {
@@ -21,7 +21,7 @@ export class AppController {
     ];
   }
 
-  @Get('movie/:id')
+  @Get(':id')
   getMovie() {
     return {
       id: 1,
@@ -30,7 +30,7 @@ export class AppController {
     };
   }
 
-  @Post('movie')
+  @Post('')
   postMovie() {
     return {
       id: 3,
@@ -39,7 +39,7 @@ export class AppController {
     };
   }
 
-  @Patch('movie/:id')
+  @Patch(':id')
   patchMovie() {
     return {
       id: 3,
@@ -48,7 +48,7 @@ export class AppController {
     };
   }
 
-  @Delete('movie/:id')
+  @Delete(':id')
   deleteMovie() {
     return 3;
   }
