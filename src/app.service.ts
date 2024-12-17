@@ -40,4 +40,24 @@ export class AppService {
     this.movies.push(movie);
     return movie;
   }
+
+  updateMovie(id: number, title: string) {
+    const movie = this.movies.find((movie) => movie.id === id);
+
+    if (!movie) {
+      throw new NotFoundException('존재하지 않는 ID의 영화입니다!');
+    }
+
+    Object.assign(movie, { title });
+    return movie;
+  }
+
+  deleteMovie(id: number) {
+    const movieIndex = this.movies.findIndex((movie) => movie.id === +id);
+    if (movieIndex === -1) {
+      throw new NotFoundException('존재하지 않는 ID의 영화입니다!');
+    }
+    this.movies.splice(movieIndex, 1);
+    return id;
+  }
 }
