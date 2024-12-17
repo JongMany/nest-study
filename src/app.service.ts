@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 export interface Movie {
   id: number;
@@ -22,5 +22,12 @@ export class AppService {
     if (!title) return this.movies;
 
     return this.movies.filter((movie) => movie.title.includes(title));
+  }
+  getMovieById(id: number): Movie {
+    const movie = this.movies.find((movie) => movie.id === +id);
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID ${id} not found`);
+    }
+    return movie;
   }
 }

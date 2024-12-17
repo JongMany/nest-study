@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller('movie')
@@ -10,15 +10,10 @@ export class AppController {
     return this.appService.getManyMovies(title);
   }
 
-  // @Get(':id')
-  // getMovie(@Param('id') id: string) {
-  //   const movie = this.movies.find((movie) => movie.id === +id);
-
-  //   if (!movie) {
-  //     throw new NotFoundException(`Movie with ID ${id} not found`);
-  //   }
-  //   return movie;
-  // }
+  @Get(':id')
+  getMovie(@Param('id') id: string) {
+    return this.appService.getMovieById(+id);
+  }
 
   // @Post('')
   // postMovie(@Body('title') title: string) {
