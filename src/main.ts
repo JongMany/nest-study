@@ -5,7 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // Class Validator 적용을 위해 Pipe 등록
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // 정의된 값만 전달되도록 필터링
+      forbidNonWhitelisted: true, // 있으면 안되는 프로퍼티가 있으면 에러를 반환한다.
+    }),
+  );
   // // Swagger 적용
   // app.enableCors();
   // app.useSwagger();
