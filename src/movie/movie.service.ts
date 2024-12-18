@@ -52,6 +52,7 @@ export class MovieService {
     if (!movie) {
       throw new NotFoundException('존재하지 않는 ID의 영화입니다!');
     }
+    console.log(updateMovieDto);
 
     Object.assign(movie, { ...updateMovieDto });
     return movie;
