@@ -33,6 +33,7 @@ export class MovieService {
       where: {
         id,
       },
+      relations: ['detail'],
     });
     if (!movie) {
       throw new NotFoundException(`Movie with ID ${id} not found`);
