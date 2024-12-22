@@ -4,11 +4,14 @@ import { CreateMovieDto } from './dto/create-movie.dto';
 import { Movie } from './entity/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
+import { MovieDetail } from './entity/movie-detail.entity';
 
 @Injectable()
 export class MovieService {
   constructor(
     @InjectRepository(Movie) private movieRepository: Repository<Movie>,
+    @InjectRepository(MovieDetail)
+    private movieDetailRepository: Repository<MovieDetail>,
   ) {}
   async getManyMovies(title?: string) {
     // 나중에 title filter 기능 추가
@@ -38,7 +41,16 @@ export class MovieService {
   }
 
   async createMovie(createMovieDto: CreateMovieDto) {
-    const movie = await this.movieRepository.save({ ...createMovieDto });
+    // Transaction 예정
+    const movieDetail = await this.movieDetailRepository.save({
+      detail: createMovieDto.detail,
+    });
+
+    const movie = await this.movieRepository.save({
+      title: createMovieDto.title,
+      genre: createMovieDto.genre,
+      detail: movieDetail,
+    });
 
     return movie;
   }
