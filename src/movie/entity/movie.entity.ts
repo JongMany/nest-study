@@ -1,37 +1,20 @@
 // import { Exclude, Expose, Transform } from 'class-transformer';
 import {
-  ChildEntity,
   Column,
-  CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
-  TableInheritance,
-  UpdateDateColumn,
-  VersionColumn,
 } from 'typeorm';
+import { BaseTable } from './base-table.entity';
+import { MovieDetail } from './movie-detail.entity';
 
-export class BaseEntity {
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @VersionColumn()
-  version: number;
-}
-
-// movie / series -> Content
-// runtime (영화 상영시간) / seriesCount (몇 부작인지)
+// ManyToOne - 감독과 영화의 관계
+// OneToOne - 영화와 상세 내용의 관계
+// ManyToMany - 영화와 장르의 관계
 
 @Entity()
-@TableInheritance({
-  column: {
-    type: 'varchar',
-    name: 'type',
-  },
-})
-export class Content extends BaseEntity {
+export class Movie extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -40,20 +23,11 @@ export class Content extends BaseEntity {
 
   @Column()
   genre: string;
-}
 
-@ChildEntity()
-export class Movie extends Content {
-  @Column()
-  runtime: number;
-
+  @OneToOne(() => MovieDetail)
+  @JoinColumn()
+  detail: MovieDetail;
   // Entity Embedding
   // @Column(() => BaseEntity)
   // base: BaseEntity;
-}
-
-@ChildEntity()
-export class Series extends Content {
-  @Column()
-  seriesCount: number;
 }
