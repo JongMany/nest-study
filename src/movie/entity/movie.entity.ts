@@ -20,7 +20,7 @@ export class BaseEntity {
 }
 
 @Entity()
-export class Movie {
+export class Movie extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -31,6 +31,6 @@ export class Movie {
   genre: string;
 
   // Entity Embedding
-  @Column(() => BaseEntity)
-  base: BaseEntity;
+  // @Column(() => BaseEntity)
+  // base: BaseEntity;
 }
