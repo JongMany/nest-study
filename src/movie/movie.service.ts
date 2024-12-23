@@ -13,7 +13,7 @@ export class MovieService {
     @InjectRepository(MovieDetail)
     private movieDetailRepository: Repository<MovieDetail>,
   ) {}
-  async getManyMovies(title?: string) {
+  async findAll(title?: string) {
     // 나중에 title filter 기능 추가
     if (!title) {
       return [
@@ -28,7 +28,7 @@ export class MovieService {
       },
     });
   }
-  async getMovieById(id: number) {
+  async findOne(id: number) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,
@@ -41,7 +41,7 @@ export class MovieService {
     return movie;
   }
 
-  async createMovie(createMovieDto: CreateMovieDto) {
+  async create(createMovieDto: CreateMovieDto) {
     // Transaction 예정
 
     const movie = await this.movieRepository.save({
@@ -53,7 +53,7 @@ export class MovieService {
     return movie;
   }
 
-  async updateMovie(id: number, updateMovieDto: UpdateMovieDto) {
+  async update(id: number, updateMovieDto: UpdateMovieDto) {
     const { detail, ...movieRest } = updateMovieDto;
     const movie = await this.movieRepository.findOne({
       where: {
@@ -84,7 +84,7 @@ export class MovieService {
     return updatedMovie;
   }
 
-  async deleteMovie(id: number) {
+  async remove(id: number) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,

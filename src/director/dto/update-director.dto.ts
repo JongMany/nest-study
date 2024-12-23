@@ -1,18 +1,16 @@
-import { IsDateString, IsNotEmpty } from 'class-validator';
-import { Movie } from 'src/movie/entity/movie.entity';
-import { OneToMany } from 'typeorm';
+import { IsDateString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateDirectorDto {
   @IsNotEmpty()
+  @IsOptional()
   name?: string;
 
   @IsNotEmpty()
   @IsDateString()
+  @IsOptional()
   dob?: Date;
 
   @IsNotEmpty()
+  @IsOptional()
   nationality?: string;
-
-  @OneToMany(() => Movie, (movie) => movie.director)
-  movies: Movie[];
 }
