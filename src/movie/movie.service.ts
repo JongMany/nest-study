@@ -49,18 +49,27 @@ export class MovieService {
     // });
   }
   async findOne(id: number) {
-    const movie = await this.movieRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['detail', 'director', 'genres'],
-    });
-
-    if (!movie) {
-      throw new NotFoundException(`Movie with ID ${id} not found`);
-    }
-
+    const movie = await this.movieRepository
+      .createQueryBuilder('movie')
+      .leftJoinAndSelect('movie.director', 'director')
+      .leftJoinAndSelect('movie.genres', 'genres')
+      .leftJoinAndSelect('movie.detail', 'detail')
+      .where('movie.id = :id', { id })
+      .getOne();
     return movie;
+
+    // const movie = await this.movieRepository.findOne({
+    //   where: {
+    //     id,
+    //   },
+    //   relations: ['detail', 'director', 'genres'],
+    // });
+
+    // if (!movie) {
+    //   throw new NotFoundException(`Movie with ID ${id} not found`);
+    // }
+
+    // return movie;
   }
 
   async create(createMovieDto: CreateMovieDto) {
