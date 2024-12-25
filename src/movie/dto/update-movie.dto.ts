@@ -1,4 +1,6 @@
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -41,10 +43,11 @@ export class UpdateMovieDto {
   @IsString()
   title?: string;
 
-  @IsNotEmpty()
   @IsOptional()
-  @IsString()
-  genre?: string;
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsNumber({}, { each: true })
+  genreIds?: number[];
 
   @IsNotEmpty()
   @IsOptional()
