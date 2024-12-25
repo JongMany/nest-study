@@ -151,7 +151,7 @@ export class MovieService {
       where: {
         id,
       },
-      relations: ['detail'],
+      relations: ['detail', 'genres'],
     });
 
     if (!movie) {
