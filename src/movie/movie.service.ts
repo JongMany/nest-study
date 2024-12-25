@@ -22,21 +22,31 @@ export class MovieService {
   ) {}
   async findAll(title?: string) {
     // 나중에 title filter 기능 추가
-    if (!title) {
-      return [
-        await this.movieRepository.find({
-          relations: ['director', 'genres'],
-        }),
-        await this.movieRepository.count(),
-      ];
+    const queryBuilder = await this.movieRepository
+      .createQueryBuilder('movie')
+      .leftJoinAndSelect('movie.director', 'director')
+      .leftJoinAndSelect('movie.genres', 'genres');
+
+    if (title) {
+      queryBuilder.where('movie.title LIKE :title', { title: `%${title}%` });
     }
 
-    return this.movieRepository.findAndCount({
-      where: {
-        title: Like(`%${title}%`),
-      },
-      relations: ['director', 'genres'],
-    });
+    return await queryBuilder.getManyAndCount();
+
+    // if (!title) {
+    //   return [
+    //     await this.movieRepository.find({
+    //       relations: ['director', ' genres'],
+    //     }),
+    //     await this.movieRepository.count(),
+    //   ];
+    // }
+    // return this.movieRepository.findAndCount({
+    //   where: {
+    //     title: Like(`%${title}%`),
+    //   },
+    //   relations: ['director', 'genres'],
+    // });
   }
   async findOne(id: number) {
     const movie = await this.movieRepository.findOne({
@@ -153,6 +163,7 @@ export class MovieService {
       relations: ['detail', 'director'],
     });
 
+    // 장르(ManyToMany) 업데이트
     updatedMovie.genres = newGenres;
 
     await this.movieRepository.save(updatedMovie);
