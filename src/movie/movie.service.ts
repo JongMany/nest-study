@@ -42,9 +42,11 @@ export class MovieService {
       },
       relations: ['detail', 'director'],
     });
+
     if (!movie) {
       throw new NotFoundException(`Movie with ID ${id} not found`);
     }
+
     return movie;
   }
 
