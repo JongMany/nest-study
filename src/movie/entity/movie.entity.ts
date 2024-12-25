@@ -32,7 +32,9 @@ export class Movie extends BaseTable {
   @JoinColumn()
   detail: MovieDetail;
 
-  @ManyToOne(() => Director, (director) => director.id)
+  @ManyToOne(() => Director, (director) => director.id, {
+    cascade: true,
+  })
   director: Director;
 
   // Entity Embedding
