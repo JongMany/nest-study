@@ -9,6 +9,8 @@ import { Movie } from './movie/entity/movie.entity';
 import { MovieDetail } from './movie/entity/movie-detail.entity';
 import { DirectorModule } from './director/director.module';
 import { Director } from './director/entity/director.entity';
+import { GenreModule } from './genre/genre.module';
+import { Genre } from './genre/entity/genre.entity';
 
 @Module({
   // 다른 module을 module로 import 할 때,
@@ -44,13 +46,14 @@ import { Director } from './director/entity/director.entity';
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
-        entities: [Movie, MovieDetail, Director],
+        entities: [Movie, MovieDetail, Director, Genre],
         synchronize: true,
       }),
       inject: [ConfigService],
     }),
     MovieModule,
     DirectorModule,
+    GenreModule,
   ],
   // controller
   controllers: [AppController],
