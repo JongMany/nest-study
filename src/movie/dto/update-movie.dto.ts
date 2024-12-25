@@ -1,6 +1,8 @@
 import {
   IsNotEmpty,
+  IsNumber,
   IsOptional,
+  IsString,
   // registerDecorator,
   // Validate,
   // ValidationArguments,
@@ -36,18 +38,22 @@ import {
 export class UpdateMovieDto {
   @IsNotEmpty()
   @IsOptional()
+  @IsString()
   title?: string;
 
   @IsNotEmpty()
   @IsOptional()
+  @IsString()
   genre?: string;
 
   @IsNotEmpty()
   @IsOptional()
+  @IsString()
   detail?: string;
 
   @IsNotEmpty()
   @IsOptional()
+  @IsNumber()
   directorId?: number;
 
   // @Validate(PasswordValidator)
