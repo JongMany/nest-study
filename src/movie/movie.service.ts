@@ -194,26 +194,52 @@ export class MovieService {
       ...(newDirector && { director: newDirector }),
     };
 
-    await this.movieRepository.update({ id }, { ...movieUpdateFields });
+    // await this.movieRepository.update({ id }, { ...movieUpdateFields });
+
+    await this.movieRepository
+      .createQueryBuilder()
+      .update(Movie)
+      .set(movieUpdateFields)
+      .where('id = :id', { id })
+      .execute();
 
     if (detail) {
-      await this.movieDetailRepository.update(
-        { id: movie.detail.id },
-        { detail },
-      );
+      await this.movieDetailRepository
+        .createQueryBuilder()
+        .update(MovieDetail)
+        .set({
+          detail,
+        })
+        .where('id = :id', { id: movie.detail.id })
+        .execute();
+      // await this.movieDetailRepository.update(
+      //   { id: movie.detail.id },
+      //   { detail },
+      // );
     }
 
-    const updatedMovie = await this.movieRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['detail', 'director'],
-    });
+    if (newGenres) {
+      await this.movieRepository
+        .createQueryBuilder()
+        .relation(Movie, 'genres')
+        .of(id)
+        .addAndRemove(
+          newGenres.map((genre) => genre.id),
+          movie.genres.map((genre) => genre.id),
+        );
+    }
 
-    // 장르(ManyToMany) 업데이트
-    updatedMovie.genres = newGenres;
+    // const updatedMovie = await this.movieRepository.findOne({
+    //   where: {
+    //     id,
+    //   },
+    //   relations: ['detail', 'director'],
+    // });
 
-    await this.movieRepository.save(updatedMovie);
+    // // 장르(ManyToMany) 업데이트
+    // updatedMovie.genres = newGenres;
+
+    // await this.movieRepository.save(updatedMovie);
 
     return this.movieRepository.findOne({
       where: {
