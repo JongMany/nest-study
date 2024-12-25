@@ -21,7 +21,9 @@ export class MovieService {
     // 나중에 title filter 기능 추가
     if (!title) {
       return [
-        await this.movieRepository.find(),
+        await this.movieRepository.find({
+          relations: ['director'],
+        }),
         await this.movieRepository.count(),
       ];
     }
@@ -30,6 +32,7 @@ export class MovieService {
       where: {
         title: Like(`%${title}%`),
       },
+      relations: ['director'],
     });
   }
   async findOne(id: number) {
@@ -37,7 +40,7 @@ export class MovieService {
       where: {
         id,
       },
-      relations: ['detail'],
+      relations: ['detail', 'director'],
     });
     if (!movie) {
       throw new NotFoundException(`Movie with ID ${id} not found`);
