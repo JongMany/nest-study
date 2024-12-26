@@ -8,6 +8,8 @@ import {
   Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
+  ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { GenreService } from './genre.service';
 import { CreateGenreDto } from './dto/create-genre.dto';
@@ -29,17 +31,51 @@ export class GenreController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.genreService.findOne(+id);
+  findOne(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: (e) => {
+          console.log(e);
+          throw new BadRequestException('숫자를 입력해주세요');
+        },
+      }),
+    )
+    id: number,
+  ) {
+    return this.genreService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGenreDto: UpdateGenreDto) {
-    return this.genreService.update(+id, updateGenreDto);
+  update(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: (e) => {
+          console.log(e);
+          throw new BadRequestException('숫자를 입력해주세요');
+        },
+      }),
+    )
+    id: number,
+    @Body() updateGenreDto: UpdateGenreDto,
+  ) {
+    return this.genreService.update(id, updateGenreDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.genreService.remove(+id);
+  remove(
+    @Param(
+      'id',
+      new ParseIntPipe({
+        exceptionFactory: (e) => {
+          console.log(e);
+          throw new BadRequestException('숫자를 입력해주세요');
+        },
+      }),
+    )
+    id: number,
+  ) {
+    return this.genreService.remove(id);
   }
 }
