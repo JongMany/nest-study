@@ -114,7 +114,7 @@ export class MovieService {
         })
         .execute();
 
-      throw new NotFoundException('트랜잭션 테스트용');
+      // throw new NotFoundException('트랜잭션 테스트용');
 
       const movieDetailId = movieDetail.identifiers[0].id;
 
