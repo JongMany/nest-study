@@ -5,9 +5,9 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('')
+  @Post('register')
   // authorization: Basic $token
   registerUser(@Headers('authorization') token: string) {
-    this.authService.register(token);
+    return this.authService.register(token);
   }
 }

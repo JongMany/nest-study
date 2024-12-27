@@ -22,7 +22,7 @@ export class AuthService {
       throw new BadRequestException('토큰 포맷이 잘못 되었습니다');
     }
 
-    const [_, token] = basicSplit;
+    const [, token] = basicSplit;
 
     // 2. 추출한 토큰을 base64 decode 후 이메일과 비밀번호로 나눈다.
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
@@ -60,5 +60,11 @@ export class AuthService {
     );
 
     await this.userRepository.save({ email, password: hash });
+
+    return this.userRepository.findOne({
+      where: {
+        email,
+      },
+    });
   }
 }
