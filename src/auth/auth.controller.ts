@@ -26,6 +26,15 @@ export class AuthController {
     return this.authService.login(token);
   }
 
+  @Post('/token/access')
+  async rotateAccessToken(@Headers('authorization') refreshToken: string) {
+    const payload = await this.authService.parseBearerToken(refreshToken, true);
+    return {
+      accessToken: await this.authService.issueToken(payload, false),
+    };
+  }
+
+  // 로그인 - 테스트용
   @UseGuards(LocalAuthGuard)
   @Post('login/passport')
   async loginUserPassport(@Request() req) {
@@ -35,6 +44,7 @@ export class AuthController {
     };
   }
 
+  // jwt 로그인 - 테스트용
   @UseGuards(JwtAuthGuard)
   @Get('private')
   async private(@Request() req) {
