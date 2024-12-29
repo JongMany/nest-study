@@ -64,7 +64,9 @@ export class AuthService {
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>(
-          envVariableKeys.refreshTokenSecret,
+          isRefreshToken
+            ? envVariableKeys.refreshTokenSecret
+            : envVariableKeys.accessTokenSecret,
         ),
       });
       if (isRefreshToken) {
