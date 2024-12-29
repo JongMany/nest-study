@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
+import { AuthGuard, PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
+
+export class LocalAuthGuard extends AuthGuard('login') {}
 
 // Local - 이메일, 비밀번호 로그인 전략
 @Injectable()
