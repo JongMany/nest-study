@@ -15,7 +15,7 @@ export class AuthGuard implements CanActivate {
     // 요청에서 user 객체가 존재하는지 확인
     const request = context.switchToHttp().getRequest();
 
-    if (!request.user || request.user.type !== 'access') {
+    if (!request?.user || request?.user?.type !== 'access') {
       return false;
     }
 
