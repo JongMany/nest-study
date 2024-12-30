@@ -21,6 +21,8 @@ import { UserModule } from './user/user.module';
 import { User } from './user/entity/user.entity';
 import { envVariableKeys } from './common/const/env.const';
 import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware';
+import { AuthGuard } from './auth/guard/auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   // 다른 module을 module로 import 할 때,
@@ -73,7 +75,14 @@ import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware
   // controller
   controllers: [AppController],
   // ioc inject
-  providers: [AppService],
+  providers: [
+    AppService,
+    // 전역에서 가드를 적용한다.
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
