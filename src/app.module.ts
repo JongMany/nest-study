@@ -23,6 +23,7 @@ import { envVariableKeys } from './common/const/env.const';
 import { BearerTokenMiddleware } from './auth/middleware/bearer-token.middleware';
 import { AuthGuard } from './auth/guard/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { RBACGuard } from './auth/guard/rbac.guard';
 
 @Module({
   // 다른 module을 module로 import 할 때,
@@ -77,10 +78,14 @@ import { APP_GUARD } from '@nestjs/core';
   // ioc inject
   providers: [
     AppService,
-    // 전역에서 가드를 적용한다.
+    // 전역에서 가드를 적용한다. (가드 순서 중요: Auth -> RBAC)
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RBACGuard,
     },
   ],
 })
