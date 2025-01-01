@@ -19,6 +19,7 @@ import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entity/user.entity';
+import { GetMoviesDto } from './dto/get-movies.dto';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -26,9 +27,9 @@ export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
   @Public()
-  @Get('')
-  getMovies(@Query('title', MovieTitleValidationPipe) title?: string) {
-    return this.movieService.findAll(title);
+  @Get()
+  getMovies(@Query() dto: GetMoviesDto) {
+    return this.movieService.findAll(dto);
   }
 
   @Public()

@@ -9,6 +9,9 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true, // 정의된 값만 전달되도록 필터링
       forbidNonWhitelisted: true, // 있으면 안되는 프로퍼티가 있으면 에러를 반환한다.
+      transformOptions: {
+        enableImplicitConversion: true, // 타입스크립트로 명시된 타입으로 변환
+      },
     }),
   );
   // // Swagger 적용
