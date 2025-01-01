@@ -25,7 +25,7 @@ export class MovieService {
     private readonly commonService: CommonService,
   ) {}
   async findAll(dto: GetMoviesDto) {
-    const { title, take, page } = dto;
+    const { title } = dto;
 
     const queryBuilder = await this.movieRepository
       .createQueryBuilder('movie')
@@ -36,12 +36,15 @@ export class MovieService {
       queryBuilder.where('movie.title LIKE :title', { title: `%${title}%` });
     }
 
-    if (take && page) {
-      this.commonService.applyPagePaginationParamsToQueryBuilder(
-        queryBuilder,
-        dto,
-      );
-    }
+    // this.commonService.applyPagePaginationParamsToQueryBuilder(
+    //   queryBuilder,
+    //   dto,
+    // );
+
+    this.commonService.applyCursorPaginationParamsToQueryBuilder(
+      queryBuilder,
+      dto,
+    );
 
     return await queryBuilder.getManyAndCount();
 
