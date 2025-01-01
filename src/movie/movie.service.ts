@@ -41,12 +41,19 @@ export class MovieService {
     //   dto,
     // );
 
-    this.commonService.applyCursorPaginationParamsToQueryBuilder(
-      queryBuilder,
-      dto,
-    );
+    const { nextCursor } =
+      await this.commonService.applyCursorPaginationParamsToQueryBuilder(
+        queryBuilder,
+        dto,
+      );
 
-    return await queryBuilder.getManyAndCount();
+    const [data, count] = await queryBuilder.getManyAndCount();
+
+    return {
+      data,
+      count,
+      nextCursor,
+    };
 
     // if (!title) {
     //   return [
