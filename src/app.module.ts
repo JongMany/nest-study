@@ -25,7 +25,7 @@ import { AuthGuard } from './auth/guard/auth.guard';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RBACGuard } from './auth/guard/rbac.guard';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
-import { CacheInterceptor } from './common/interceptor/cache.interceptor';
+// import { CacheInterceptor } from './common/interceptor/cache.interceptor';
 
 @Module({
   // 다른 module을 module로 import 할 때,

@@ -11,6 +11,7 @@ import {
   ClassSerializerInterceptor,
   ParseIntPipe,
   BadRequestException,
+  Request,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -19,6 +20,8 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entity/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
+import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
+// import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -26,6 +29,7 @@ export class MovieController {
   constructor(private readonly movieService: MovieService) {}
 
   @Public()
+  // @UseInterceptors(CacheInterceptor)
   @Get()
   getMovies(@Query() dto: GetMoviesDto) {
     return this.movieService.findAll(dto);
@@ -49,9 +53,10 @@ export class MovieController {
   }
 
   @RBAC(Role.admin)
+  @UseInterceptors(TransactionInterceptor)
   @Post('')
-  postMovie(@Body() body: CreateMovieDto) {
-    return this.movieService.create(body);
+  postMovie(@Body() body: CreateMovieDto, @Request() request) {
+    return this.movieService.create(body, request.queryRunner);
   }
 
   @RBAC(Role.admin)
