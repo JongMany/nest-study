@@ -50,6 +50,9 @@ export class Movie extends BaseTable {
   })
   director: Director;
 
+  @Column()
+  movieFilePath: string;
+
   // Entity Embedding
   // @Column(() => BaseEntity)
   // base: BaseEntity;

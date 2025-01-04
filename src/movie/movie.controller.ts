@@ -114,7 +114,7 @@ export class MovieController {
     console.log('-----------');
     console.log(movie);
 
-    return this.movieService.create(body, request.queryRunner);
+    return this.movieService.create(body, movie.filename, request.queryRunner);
   }
 
   @RBAC(Role.admin)

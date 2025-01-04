@@ -9,6 +9,7 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { CommonService } from 'src/common/common.service';
+import { join } from 'path';
 
 @Injectable()
 export class MovieService {
@@ -95,7 +96,11 @@ export class MovieService {
   }
 
   // Query Builder로 한 번에 안되는 것 -> 같이 생성하는 것(Cascade), ManyToMany
-  async create(createMovieDto: CreateMovieDto, queryRunner: QueryRunner) {
+  async create(
+    createMovieDto: CreateMovieDto,
+    movieFilename: string,
+    queryRunner: QueryRunner,
+  ) {
     // Transaction
     // const queryRunner = this.dataSource.createQueryRunner();
 
@@ -139,6 +144,8 @@ export class MovieService {
 
     const movieDetailId = movieDetail.identifiers[0].id;
 
+    const movieFolder = join('public', 'movie');
+
     const movie = await queryRunner.manager
       .createQueryBuilder()
       .insert()
@@ -147,6 +154,7 @@ export class MovieService {
         title: createMovieDto.title,
         detail: { id: movieDetailId },
         director,
+        movieFilePath: join(movieFolder, movieFilename),
       })
       .execute();
 
