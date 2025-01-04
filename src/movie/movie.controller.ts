@@ -22,7 +22,7 @@ import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entity/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 // import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 
 @Controller('movie')
@@ -56,12 +56,24 @@ export class MovieController {
 
   @RBAC(Role.admin)
   @UseInterceptors(TransactionInterceptor)
-  @UseInterceptors(FilesInterceptor('movies'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'movie', maxCount: 1 },
+      {
+        name: 'poster',
+        maxCount: 2,
+      },
+    ]),
+  )
   @Post('')
   postMovie(
     @Body() body: CreateMovieDto,
     @Request() request,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles()
+    files: {
+      movie?: Express.Multer.File[];
+      poster?: Express.Multer.File[];
+    },
   ) {
     console.log('-----------');
     console.log(files);
