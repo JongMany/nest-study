@@ -10,6 +10,7 @@ import { CommonModule } from 'src/common/common.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { v4 } from 'uuid';
 
 @Module({
   imports: [
@@ -18,6 +19,17 @@ import { join } from 'path';
     MulterModule.register({
       storage: diskStorage({
         destination: join(process.cwd(), 'public', 'movie'),
+        filename: (req, file, callback) => {
+          const split = file.originalname.split('.');
+
+          let extension = 'mp4';
+
+          if (split.length > 1) {
+            extension = split[split.length - 1];
+          }
+
+          callback(null, `${v4()}_${Date.now()}.${extension}`);
+        },
       }), // 서버 파일 시스템
     }),
   ],
