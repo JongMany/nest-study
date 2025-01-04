@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -27,5 +28,6 @@ export class CreateMovieDto {
       each: true, // list 값들을 모두 검증
     },
   )
+  @Type(() => Number) // transformer로 타입 변환
   genreIds: number[];
 }
