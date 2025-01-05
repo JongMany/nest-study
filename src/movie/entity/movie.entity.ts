@@ -13,6 +13,8 @@ import { BaseTable } from '../../common/entity/base-table.entity';
 import { MovieDetail } from './movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
+import { User } from 'src/user/entity/user.entity';
+import { Transform } from 'class-transformer';
 
 // ManyToOne - 감독과 영화의 관계
 // OneToOne - 영화와 상세 내용의 관계
@@ -50,7 +52,11 @@ export class Movie extends BaseTable {
   })
   director: Director;
 
+  @ManyToOne(() => User, (user) => user.createMovies)
+  creator: User;
+
   @Column()
+  @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilePath: string;
 
   // Entity Embedding

@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -32,6 +32,5 @@ export class CreateMovieDto {
   genreIds: number[];
 
   @IsString()
-  @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilename: string;
 }

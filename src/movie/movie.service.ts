@@ -78,6 +78,7 @@ export class MovieService {
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres')
       .leftJoinAndSelect('movie.detail', 'detail')
+      .leftJoinAndSelect('movie.creator', 'creator')
       .where('movie.id = :id', { id })
       .getOne();
     return movie;
@@ -97,7 +98,11 @@ export class MovieService {
   }
 
   // Query Builder로 한 번에 안되는 것 -> 같이 생성하는 것(Cascade), ManyToMany
-  async create(createMovieDto: CreateMovieDto, queryRunner: QueryRunner) {
+  async create(
+    createMovieDto: CreateMovieDto,
+    userId: number,
+    queryRunner: QueryRunner,
+  ) {
     // Transaction
     // const queryRunner = this.dataSource.createQueryRunner();
 
@@ -144,10 +149,6 @@ export class MovieService {
     const movieFolder = join('public', 'movie');
     // temp 폴더의 파일을 movie 폴더로 이동
     const tempFolder = join('public', 'temp');
-    await rename(
-      join(process.cwd(), tempFolder, createMovieDto.movieFilename),
-      join(process.cwd(), movieFolder, createMovieDto.movieFilename),
-    );
 
     const movie = await queryRunner.manager
       .createQueryBuilder()
@@ -157,6 +158,9 @@ export class MovieService {
         title: createMovieDto.title,
         detail: { id: movieDetailId },
         director,
+        creator: {
+          id: userId,
+        },
         movieFilePath: join(movieFolder, createMovieDto.movieFilename),
       })
       .execute();
@@ -178,6 +182,11 @@ export class MovieService {
     // });
 
     // await queryRunner.commitTransaction();
+
+    await rename(
+      join(process.cwd(), tempFolder, createMovieDto.movieFilename),
+      join(process.cwd(), movieFolder, createMovieDto.movieFilename),
+    );
 
     return await queryRunner.manager.findOne(Movie, {
       where: {
