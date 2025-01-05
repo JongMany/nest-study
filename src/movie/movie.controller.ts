@@ -104,7 +104,7 @@ export class MovieController {
     @Param('movieId', ParseIntPipe) movieId: number,
     @UserId() userId: number,
   ) {
-    this.movieService.toggleMovieLike(movieId, userId, true);
+    return this.movieService.toggleMovieLike(movieId, userId, true);
   }
 
   @Post(':movieId/dislike')
@@ -112,6 +112,6 @@ export class MovieController {
     @Param('movieId', ParseIntPipe) movieId: number,
     @UserId() userId: number,
   ) {
-    this.movieService.toggleMovieLike(movieId, userId, false);
+    return this.movieService.toggleMovieLike(movieId, userId, false);
   }
 }

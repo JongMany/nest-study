@@ -6,14 +6,14 @@ import { Movie } from './movie.entity';
 export class MovieUserLike {
   // composite primary key
   @PrimaryColumn({
-    name: 'movie_id',
+    name: 'movieId',
     type: 'int8',
   })
   @ManyToOne(() => Movie, (movie: Movie) => movie.likedUsers)
   movie: Movie;
 
   @PrimaryColumn({
-    name: 'user_id',
+    name: 'userId',
     type: 'int8',
   })
   @ManyToOne(() => User, (user: User) => user.likedMovies)
