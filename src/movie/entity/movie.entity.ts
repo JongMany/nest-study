@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -15,6 +16,7 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Transform } from 'class-transformer';
+import { MovieUserLike } from './moive-user-like.entity';
 
 // ManyToOne - 감독과 영화의 관계
 // OneToOne - 영화와 상세 내용의 관계
@@ -58,6 +60,10 @@ export class Movie extends BaseTable {
   @Column()
   @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilePath: string;
+
+  @Column()
+  @OneToMany(() => MovieUserLike, (mul) => mul.movie)
+  likedUsers: MovieUserLike[];
 
   // Entity Embedding
   // @Column(() => BaseEntity)
