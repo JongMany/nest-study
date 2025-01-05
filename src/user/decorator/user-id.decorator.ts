@@ -8,6 +8,6 @@ export const UserId = createParamDecorator(
     //   throw new UnauthorizedException('사용자 정보를 찾을 수 없습니다.');
     // }
 
-    return request.user.sub;
+    return request?.user?.sub;
   },
 );
