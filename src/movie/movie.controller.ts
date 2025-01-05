@@ -12,8 +12,6 @@ import {
   ParseIntPipe,
   BadRequestException,
   Request,
-  UploadedFiles,
-  UploadedFile,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -23,12 +21,6 @@ import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entity/user.entity';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
-import {
-  FileFieldsInterceptor,
-  FileInterceptor,
-} from '@nestjs/platform-express';
-import { MovieFilePipe } from './pipe/movie-file.pipe';
-// import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -61,60 +53,9 @@ export class MovieController {
 
   @RBAC(Role.admin)
   @UseInterceptors(TransactionInterceptor)
-  @UseInterceptors(
-    // FileFieldsInterceptor(
-    //   [
-    //     { name: 'movie', maxCount: 1 },
-    //     {
-    //       name: 'poster',
-    //       maxCount: 2,
-    //     },
-    //   ],
-    //   {
-    //     limits: {
-    //       fileSize: 20 * 1000 * 1000, // 20MB
-    //     },
-    //     fileFilter: (req, file, callback) => {
-    //       console.log(file);
-    //       if (file.mimetype !== 'video/mp4') {
-    //         return callback(
-    //           new BadRequestException('MP4 타입만 업로드 가능합니다.'),
-    //           false,
-    //         );
-    //       }
-
-    //       return callback(null, true);
-    //     },
-    //   },
-    // ),
-    FileInterceptor('movie', {
-      limits: {
-        fileSize: 20 * 1000 * 1000, // 20MB
-      },
-      fileFilter: (req, file, callback) => {
-        console.log(file);
-        if (file.mimetype !== 'video/mp4') {
-          return callback(
-            new BadRequestException('MP4 타입만 업로드 가능합니다.'),
-            false,
-          );
-        }
-
-        return callback(null, true);
-      },
-    }),
-  )
   @Post('')
-  postMovie(
-    @Body() body: CreateMovieDto,
-    @Request() request,
-    @UploadedFile()
-    movie: Express.Multer.File,
-  ) {
-    console.log('-----------');
-    console.log(movie);
-
-    return this.movieService.create(body, movie.filename, request.queryRunner);
+  postMovie(@Body() body: CreateMovieDto, @Request() request) {
+    return this.movieService.create(body, request.queryRunner);
   }
 
   @RBAC(Role.admin)
