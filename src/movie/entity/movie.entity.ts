@@ -61,7 +61,6 @@ export class Movie extends BaseTable {
   @Transform(({ value }) => `http://localhost:3000/${value}`)
   movieFilePath: string;
 
-  @Column()
   @OneToMany(() => MovieUserLike, (mul) => mul.movie)
   likedUsers: MovieUserLike[];
 
