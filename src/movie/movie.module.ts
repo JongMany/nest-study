@@ -8,10 +8,18 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { CommonModule } from 'src/common/common.module';
 import { User } from 'src/user/entity/user.entity';
+import { MovieUserLike } from './entity/moive-user-like.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Movie, MovieDetail, Director, Genre, User]),
+    TypeOrmModule.forFeature([
+      Movie,
+      MovieDetail,
+      Director,
+      Genre,
+      User,
+      MovieUserLike,
+    ]),
     CommonModule,
     // MulterModule.register({
     //   storage: diskStorage({
