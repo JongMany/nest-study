@@ -8,7 +8,8 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { CommonModule } from 'src/common/common.module';
 import { User } from 'src/user/entity/user.entity';
-import { MovieUserLike } from './entity/moive-user-like.entity';
+import { MovieUserLike } from './entity/movie-user-like.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { MovieUserLike } from './entity/moive-user-like.entity';
       MovieUserLike,
     ]),
     CommonModule,
+    CacheModule.register({}),
     // MulterModule.register({
     //   storage: diskStorage({
     //     destination: join(process.cwd(), 'public', 'movie'),

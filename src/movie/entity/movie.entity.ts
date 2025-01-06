@@ -16,7 +16,7 @@ import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Transform } from 'class-transformer';
-import { MovieUserLike } from './moive-user-like.entity';
+import { MovieUserLike } from './movie-user-like.entity';
 
 // ManyToOne - 감독과 영화의 관계
 // OneToOne - 영화와 상세 내용의 관계
