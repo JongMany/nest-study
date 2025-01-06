@@ -57,7 +57,7 @@ export class MovieService {
       take: 10,
     });
 
-    await this.cacheManager.set('MOVIE_RECENT', recentMovies, 0); // 0은 영속적으로 저장
+    await this.cacheManager.set('MOVIE_RECENT', recentMovies, 3000); // 0은 영속적으로 저장
     return recentMovies;
   }
   async findAll(dto: GetMoviesDto, userId?: number) {
