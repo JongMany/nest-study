@@ -30,6 +30,7 @@ import { QueryFailedExceptionFilter } from './common/filter/query-failed.filter'
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { MovieUserLike } from './movie/entity/movie-user-like.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 // import { CacheInterceptor } from './common/interceptor/cache.interceptor';
 
 @Module({
@@ -77,6 +78,10 @@ import { MovieUserLike } from './movie/entity/movie-user-like.entity';
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'public'), // public 폴더만 서빙하도록
       serveRoot: '/public/',
+    }),
+    CacheModule.register({
+      ttl: 3000, // 기본 ttl 설정
+      isGlobal: true,
     }),
     MovieModule,
     DirectorModule,
