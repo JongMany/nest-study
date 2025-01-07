@@ -46,7 +46,7 @@ export class MovieService {
     const cachedData = await this.cacheManager.get('MOVIE_RECENT');
 
     if (cachedData) {
-      console.log('캐시 가져옴!');
+      // console.log('캐시 가져옴!');
       return cachedData;
     }
 

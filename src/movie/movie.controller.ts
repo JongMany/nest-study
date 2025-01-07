@@ -23,6 +23,7 @@ import { TransactionInterceptor } from 'src/common/interceptor/transaction.inter
 import { UserId } from 'src/user/decorator/user-id.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { QueryRunner as TypeOrmQueryRunner } from 'typeorm';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -37,6 +38,7 @@ export class MovieController {
   }
 
   @Get('recent')
+  @UseInterceptors(CacheInterceptor) // query params를 키로 캐싱
   getMoviesRecent() {
     return this.movieService.findRecent();
   }
