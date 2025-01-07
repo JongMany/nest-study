@@ -29,17 +29,23 @@ export class BearerTokenMiddleware implements NestMiddleware {
     }
 
     // 토큰 추출
+    const token = this.validateBearerToken(authHeader);
+
+    const blockedToken = await this.cacheManager.get(`BLOCK_TOKEN_${token}`);
+
+    if (blockedToken) {
+      throw new UnauthorizedException('차단된 토큰입니다.');
+    }
+
+    const tokenKey = `TOKEN_${token}`;
+    const cachedPayload = await this.cacheManager.get(tokenKey);
+
+    if (cachedPayload) {
+      req.user = cachedPayload;
+      return next();
+    }
 
     try {
-      const token = this.validateBearerToken(authHeader);
-      const tokenKey = `TOKEN_${token}`;
-      const cachedPayload = await this.cacheManager.get(tokenKey);
-
-      if (cachedPayload) {
-        req.user = cachedPayload;
-        return next();
-      }
-
       const decodedPayload = await this.jwtService.decode(token);
 
       if (
@@ -77,6 +83,7 @@ export class BearerTokenMiddleware implements NestMiddleware {
       if (e.name === 'TokenExpiredError') {
         throw new UnauthorizedException('만료된 토큰입니다.');
       }
+
       // 토큰 권한 에러 잡기는 Guard에서 처리함(MGIP)
       next();
     }

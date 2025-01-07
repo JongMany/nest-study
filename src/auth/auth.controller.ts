@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
@@ -34,6 +35,11 @@ export class AuthController {
     return {
       accessToken: await this.authService.issueToken(req.user, false),
     };
+  }
+
+  @Post('token/block')
+  blockToken(@Body('token') token: string) {
+    return this.authService.tokenBlock(token);
   }
 
   // 로그인 - 테스트용
