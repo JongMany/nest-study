@@ -37,6 +37,11 @@ export class Movie extends BaseTable {
   })
   likeCount: number;
 
+  @Column({
+    default: 0,
+  })
+  dislikeCount: number;
+
   @ManyToMany(() => Genre, (genre) => genre.movies)
   @JoinTable()
   genres: Genre[];
