@@ -5,18 +5,27 @@ import { readdir, unlink } from 'fs/promises';
 import { join, parse } from 'path';
 import { Movie } from 'src/movie/entity/movie.entity';
 import { Repository } from 'typeorm';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class TasksService {
+  private readonly logger: Logger = new Logger(TasksService.name);
+
   constructor(
     @InjectRepository(Movie)
     private readonly movieRepository: Repository<Movie>,
     private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  // @Cron('* * * * * *')
+  @Cron('*/5 * * * * *')
   logEverySecond() {
-    console.log('1초마다 실행');
+    // 중요도 높은 순서
+    this.logger.fatal('FATAL 레벨 로그'); // 당장 해결해야하는 문제
+    this.logger.error('ERROR 레벨 로그'); // 중요한 문제가 발생할 때
+    this.logger.warn('WARN 레벨 로그'); // 일어나면 안되는 일이긴 하지만 문제가 되진 않는 경우
+    this.logger.log('LOG 레벨 로그'); // 정보성 로그를 사용할 때 (info-level)
+    this.logger.debug('DEBUG 레벨 로그'); // 개발 환경에서 중요한 로그를 사용할 때
+    this.logger.verbose('VERBOSE 레벨 로그'); // 중요하지 않은 내용
   }
 
   // @Cron('* * * * * *')
@@ -40,6 +49,7 @@ export class TasksService {
 
         return now - date > aDayInMilSec;
       } catch (err) {
+        console.error(`Invalid date format: ${filename}`, err);
         return true;
       }
     });
@@ -74,14 +84,14 @@ export class TasksService {
     );
   }
 
-  @Cron('* * * * * *', {
-    name: 'printer',
-  })
+  // @Cron('* * * * * *', {
+  //   name: 'printer',
+  // })
   printer() {
     console.log('print every seconds');
   }
 
-  @Cron('*/5 * * * * *')
+  // @Cron('*/5 * * * * *')
   stopper() {
     console.log('---stopper run---');
     const job = this.schedulerRegistry.getCronJob('printer');
