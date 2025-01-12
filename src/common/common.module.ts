@@ -8,6 +8,7 @@ import { v4 } from 'uuid';
 import { TasksService } from './tasks.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Movie } from 'src/movie/entity/movie.entity';
+import { DefaultLogger } from './logger/default.logger';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { Movie } from 'src/movie/entity/movie.entity';
     TypeOrmModule.forFeature([Movie]),
   ],
   controllers: [CommonController],
-  providers: [CommonService, TasksService],
-  exports: [CommonService], // CommonModule을 import한 다른 Module에서도 CommonService, CommonController, CommonEntity를 import할 수 있도록 exports
+  providers: [CommonService, TasksService, DefaultLogger],
+  exports: [CommonService, DefaultLogger], // CommonModule을 import한 다른 Module에서도 CommonService, CommonController, CommonEntity를 import할 수 있도록 exports
 })
 export class CommonModule {}
