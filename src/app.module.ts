@@ -25,7 +25,6 @@ import { AuthGuard } from './auth/guard/auth.guard';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { RBACGuard } from './auth/guard/rbac.guard';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
-import { ForbiddenExceptionFilter } from './common/filter/forbidden.filter';
 import { QueryFailedExceptionFilter } from './common/filter/query-failed.filter';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -33,6 +32,8 @@ import { MovieUserLike } from './movie/entity/movie-user-like.entity';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottleInterceptor } from './common/interceptor/throttle.interceptor';
 import { ScheduleModule } from '@nestjs/schedule';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
 // import { CacheInterceptor } from './common/interceptor/cache.interceptor';
 
 @Module({
@@ -91,6 +92,22 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
     UserModule,
     ScheduleModule.forRoot(),
+    WinstonModule.forRoot({
+      level: 'debug',
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.colorize({
+              all: true,
+            }),
+            winston.format.printf(
+              (info) =>
+                `${info.timestamp} [${info.context}] ${info.level.toUpperCase()} ${info.message}`,
+            ),
+          ),
+        }),
+      ],
+    }),
   ],
   // controller
   controllers: [AppController],

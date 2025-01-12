@@ -1,11 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['debug'], // 설정된 레벨 이상의 레벨을 다 보여준다.
   });
+  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   // Class Validator 적용을 위해 Pipe 등록
   app.useGlobalPipes(
     new ValidationPipe({
