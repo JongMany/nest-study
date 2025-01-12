@@ -106,6 +106,10 @@ import * as winston from 'winston';
             ),
           ),
         }),
+        new winston.transports.File({
+          dirname: join(process.cwd(), 'logs'),
+          filename: 'logs.log',
+        }),
       ],
     }),
   ],
