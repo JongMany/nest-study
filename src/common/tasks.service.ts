@@ -24,6 +24,9 @@ export class TasksService {
   @Cron('*/5 * * * * *')
   logEverySecond() {
     // 중요도 높은 순서
+    console.log(
+      '================================================================',
+    );
     this.logger.fatal('FATAL 레벨 로그', null, TasksService.name); // 당장 해결해야하는 문제 (msg, stack, context)
     this.logger.error('ERROR 레벨 로그', null, TasksService.name); // 중요한 문제가 발생할 때
     this.logger.warn('WARN 레벨 로그', TasksService.name); // 일어나면 안되는 일이긴 하지만 문제가 되진 않는 경우
