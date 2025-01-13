@@ -1,17 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['debug'], // 설정된 레벨 이상의 레벨을 다 보여준다.
   });
-  // app.setGlobalPrefix('v1');
-  app.enableVersioning({
-    type: VersioningType.MEDIA_TYPE,
-    key: 'v=',
-  });
+
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   // Class Validator 적용을 위해 Pipe 등록
   app.useGlobalPipes(
@@ -24,15 +21,19 @@ async function bootstrap() {
     }),
   );
 
+  // Swagger
+  const config = new DocumentBuilder()
+    .setTitle('Code Factory Netflix')
+    .setDescription('NestJS Study')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+
+  SwaggerModule.setup('doc', app, document);
+
   // // Swagger 적용
   // app.enableCors();
-  // app.useSwagger();
-  // const document = SwaggerModule.createDocument(app, {
-  //   title: 'Movie API',
-  //   description: 'A simple API for managing movies',
-  //   version: '1.0',
-  // });
-  // SwaggerModule.setup('api', app, document);
+
   // // Error Handling
   // app.useGlobalFilters(new HttpExceptionFilter());
   // app.useGlobalInterceptors(new LoggingInterceptor());
