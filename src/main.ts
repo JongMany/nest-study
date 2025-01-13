@@ -9,7 +9,8 @@ async function bootstrap() {
   });
   // app.setGlobalPrefix('v1');
   app.enableVersioning({
-    type: VersioningType.URI,
+    type: VersioningType.HEADER,
+    header: 'version',
   });
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   // Class Validator 적용을 위해 Pipe 등록

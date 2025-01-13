@@ -11,7 +11,6 @@ import {
   ClassSerializerInterceptor,
   ParseIntPipe,
   BadRequestException,
-  Version,
 } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
@@ -39,7 +38,7 @@ export class MovieControllerV2 {
 }
 @Controller({
   path: 'movie',
-  version: ['1', '3'],
+  version: '1',
 })
 @UseInterceptors(ClassSerializerInterceptor)
 export class MovieController {
@@ -48,7 +47,6 @@ export class MovieController {
   @Public()
   // @UseInterceptors(CacheInterceptor)
   @Get()
-  @Version(['1', '3', '5'])
   @Throttle({
     count: 5,
     unit: 'minute',
