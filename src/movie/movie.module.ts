@@ -39,7 +39,7 @@ import { MovieUserLike } from './entity/movie-user-like.entity';
     //   }), // 서버 파일 시스템
     // }),
   ],
-  controllers: [MovieController, MovieControllerV2],
+  controllers: [MovieControllerV2, MovieController],
   providers: [MovieService],
 })
 export class MovieModule {}
