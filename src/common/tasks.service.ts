@@ -21,7 +21,7 @@ export class TasksService {
     private readonly logger: LoggerService,
   ) {}
 
-  @Cron('*/5 * * * * *')
+  // @Cron('*/5 * * * * *')
   logEverySecond() {
     // 중요도 높은 순서
     console.log(
