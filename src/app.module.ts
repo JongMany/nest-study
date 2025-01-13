@@ -100,7 +100,6 @@ import * as winston from 'winston';
             winston.format.colorize({
               all: true,
             }),
-            winston.format.timestamp(),
             winston.format.printf(
               (info) =>
                 `${info.timestamp} [${info.context}] ${info.level.toUpperCase()} ${info.message}`,
@@ -111,6 +110,7 @@ import * as winston from 'winston';
           dirname: join(process.cwd(), 'logs'),
           filename: 'logs.log',
           format: winston.format.combine(
+            winston.format.timestamp(),
             winston.format.printf(
               (info) =>
                 `${info.timestamp} [${info.context}] ${info.level.toUpperCase()} ${info.message}`,
