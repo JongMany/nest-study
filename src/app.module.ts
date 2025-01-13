@@ -164,12 +164,10 @@ export class AppModule implements NestModule {
         {
           path: '/auth/login',
           method: RequestMethod.POST,
-          version: ['1', '2'],
         },
         {
           path: '/auth/register',
           method: RequestMethod.POST,
-          version: ['1', '2'],
         },
       )
       .forRoutes('*');
