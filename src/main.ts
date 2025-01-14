@@ -26,6 +26,8 @@ async function bootstrap() {
     .setTitle('Code Factory Netflix')
     .setDescription('NestJS Study')
     .setVersion('1.0')
+    .addBasicAuth()
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
