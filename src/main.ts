@@ -31,7 +31,11 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
 
-  SwaggerModule.setup('doc', app, document);
+  SwaggerModule.setup('doc', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   // // Swagger 적용
   // app.enableCors();
