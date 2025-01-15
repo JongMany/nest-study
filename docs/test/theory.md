@@ -37,3 +37,7 @@
 - mockFn.mockReturnValue(value): mock 함수가 호출될 때마다 특정 값을 반환하도록 설정
 - mockFn.mockResolvedValue(value): mock 함수가 호출될 때 Promise가 특정 값으로 Resolve 되도록 한다.
 - mockFn.mockRejectedValue(value): mock 함수가 호출될 때 Promise가 특정 값으로 Reject 되도록 설정한다.
+
+- mockFn.mockClear(): mock 함수의 호출 기록, 반환값을 지운다 (상태 초기화)
+- mockFn.mockReset(): mockClear + mock 함수를 빈 함수로 대체
+- mockFn.mockRestore(): mockReset + mock 함수를 원래 구현체로 복원
