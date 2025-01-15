@@ -29,3 +29,11 @@
 
 - Fake는 실제 객체를 간소하게 구현한 형태이다. 복잡한 객체의 작동방식을 최소화하여 구현한 형태.
 - 실제 객체는 너무 헤비하지만 Stub보다는 현실적인 작동이 필요할 때 많이 사용
+
+# Mock Function
+
+- mockFn.mockImplementation(fn): mock 함수의 구현체 변경
+- mockFn.mockReturnThis(): mock 함수가 호출될 때마다 this를 반환하도록 설정
+- mockFn.mockReturnValue(value): mock 함수가 호출될 때마다 특정 값을 반환하도록 설정
+- mockFn.mockResolvedValue(value): mock 함수가 호출될 때 Promise가 특정 값으로 Resolve 되도록 한다.
+- mockFn.mockRejectedValue(value): mock 함수가 호출될 때 Promise가 특정 값으로 Reject 되도록 설정한다.
