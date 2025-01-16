@@ -18,7 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:user": "jest --testPathPattern=src/user --coverage"
+    "test:user": "jest --testPathPattern=src/user --coverage --collectCoverageFrom=src/user/**"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.3.0",
@@ -91,6 +91,12 @@
     },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
+    ],
+    "coveragePathIgnorePatterns": [
+      "module.ts",
+      "dto.ts",
+      "dto/*",
+      "entity.ts"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
