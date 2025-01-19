@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 const mockUserRepository = {
   create: jest.fn(),
@@ -10,6 +11,10 @@ const mockUserRepository = {
   findOne: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+};
+
+const mockConfigService = {
+  get: jest.fn(),
 };
 
 describe('UserService', () => {
@@ -22,6 +27,10 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: mockUserRepository,
+        },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
