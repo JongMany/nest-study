@@ -40,7 +40,11 @@ describe('UserService', () => {
     }).compile();
 
     userService = module.get<UserService>(UserService);
-    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    // jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -195,6 +199,22 @@ describe('UserService', () => {
           password: hashedPassword,
         },
       );
+    });
+
+    it('should throw a NotFoundException if user to update is not found', async () => {
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(null);
+      const updateUserDto: UpdateUserDto = {
+        email: 'test@test.com',
+        password: '123123',
+      };
+
+      expect(userService.update(999, updateUserDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 999 },
+      });
+      expect(mockUserRepository.update).not.toHaveBeenCalled();
     });
   });
 
