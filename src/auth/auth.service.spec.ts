@@ -58,7 +58,30 @@ describe('AuthService', () => {
     userService = module.get<UserService>(UserService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(authService).toBeDefined();
+  });
+
+  describe('tokenBlock', () => {
+    it('should block a token', async () => {
+      const token = 'token';
+      const payload = {
+        exp: Math.floor(Date.now() / 1000) + 60,
+      };
+
+      jest.spyOn(jwtService, 'decode').mockReturnValue(payload);
+
+      await authService.tokenBlock(token);
+      expect(jwtService.decode).toHaveBeenCalledWith(token);
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        `BLOCK_TOKEN_${token}`,
+        payload,
+        expect.any(Number),
+      );
+    });
   });
 });
