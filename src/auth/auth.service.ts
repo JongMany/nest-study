@@ -26,7 +26,7 @@ export class AuthService {
     private readonly cacheManager: Cache,
   ) {}
 
-  private parseBasicToken(rawToken: string) {
+  parseBasicToken(rawToken: string) {
     // 1. 토큰을 " " 기준으로 스플릿 한 후 토큰 값만 추출
     // 정상적인 경우 [Basic, $token]
     const basicSplit = rawToken.split(' ');
