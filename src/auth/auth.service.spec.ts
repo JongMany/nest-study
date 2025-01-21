@@ -181,4 +181,22 @@ describe('AuthService', () => {
       );
     });
   });
+
+  describe('register', () => {
+    it('should register a new user', async () => {
+      const rawToken = 'basic abcd';
+      const user = {
+        email: 'test@example.com',
+        password: '123456',
+      };
+
+      jest.spyOn(authService, 'parseBasicToken').mockReturnValue(user);
+      jest.spyOn(mockUserService, 'create').mockResolvedValue(user);
+
+      const result = await authService.register(rawToken);
+      expect(authService.parseBasicToken).toHaveBeenCalledWith(rawToken);
+      expect(mockUserService.create).toHaveBeenCalledWith(user);
+      expect(result).toEqual(user);
+    });
+  });
 });
