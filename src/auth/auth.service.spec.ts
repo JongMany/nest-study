@@ -8,6 +8,7 @@ import { UserService } from 'src/user/user.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 
 const mockUserRepository = {
   findOne: jest.fn(),
@@ -197,6 +198,43 @@ describe('AuthService', () => {
       expect(authService.parseBasicToken).toHaveBeenCalledWith(rawToken);
       expect(mockUserService.create).toHaveBeenCalledWith(user);
       expect(result).toEqual(user);
+    });
+  });
+
+  describe('authenticate', () => {
+    it('should authenticate a user with correct credentials', async () => {
+      const email = 'test@codefactory.ai';
+      const password = '123123';
+      const user = { email, password: 'hashedPassword' };
+
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(bcrypt, 'compare').mockImplementation((a, b) => true);
+
+      const result = await authService.authenticate(email, password);
+
+      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+        where: { email },
+      });
+      expect(bcrypt.compare).toHaveBeenCalledWith(password, 'hashedPassword');
+      expect(result).toEqual(user);
+    });
+
+    it('should throw an error fro not existing user', async () => {
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        authService.authenticate('test@codefactory.ai', '123123'),
+      ).rejects.toThrow(BadRequestException);
+    });
+    it('should throw an error fro not incorrect password', async () => {
+      const user = { email: 'test@codefactory.ai', password: 'hashedPassword' };
+
+      jest.spyOn(mockUserRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(bcrypt, 'compare').mockImplementation((a, b) => false);
+
+      await expect(
+        authService.authenticate('test@codefactory.ai', 'password'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });
