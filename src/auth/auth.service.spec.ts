@@ -267,4 +267,29 @@ describe('AuthService', () => {
       expect(result).toBe(token);
     });
   });
+
+  describe('login', () => {
+    it('should log a user and return tokens', async () => {
+      const rawToken = 'Basic asdf';
+      const email = 'email@example.com';
+      const password = '1234123';
+
+      const user = { id: 1, role: Role.user };
+      jest
+        .spyOn(authService, 'parseBasicToken')
+        .mockReturnValue({ email, password });
+      jest.spyOn(authService, 'authenticate').mockResolvedValue(user as User);
+      jest.spyOn(authService, 'issueToken').mockResolvedValue('mocked.token');
+
+      const result = await authService.login(rawToken);
+
+      expect(authService.parseBasicToken).toHaveBeenCalledWith(rawToken);
+      expect(authService.authenticate).toHaveBeenCalledWith(email, password);
+      expect(authService.issueToken).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({
+        accessToken: 'mocked.token',
+        refreshToken: 'mocked.token',
+      });
+    });
+  });
 });
