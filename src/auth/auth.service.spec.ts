@@ -7,7 +7,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 const mockUserRepository = {
   findOne: jest.fn(),
@@ -121,6 +121,63 @@ describe('AuthService', () => {
       // Async 가 아니므로, 콜백으로 넣어줘야 한다.
       expect(() => authService.parseBasicToken(rawToken)).toThrow(
         BadRequestException,
+      );
+    });
+  });
+
+  describe('parseBearerToken', () => {
+    it('should parse a valid Bearer Token', async () => {
+      const rawToken = 'Bearer token';
+      const payload = { type: 'access' };
+
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue(payload);
+      jest.spyOn(mockConfigService, 'get').mockReturnValue('secret');
+
+      const result = await authService.parseBearerToken(rawToken, false);
+
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('token', {
+        secret: 'secret',
+      });
+      expect(result).toEqual(payload);
+    });
+
+    it('should throw a BadRequestException for invalid Bearer token format', () => {
+      const rawToken = 'a';
+
+      expect(authService.parseBearerToken(rawToken, false)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw a BadRequestException for token not starting with Bearer', () => {
+      const rawToken = 'Basic token';
+
+      expect(authService.parseBearerToken(rawToken, false)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw a UnauthorizedException if payload.type is not refresh but isRefreshToken parameter is true', () => {
+      const rawToken = 'Bearer token';
+
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ type: 'refresh' });
+
+      expect(authService.parseBearerToken(rawToken, false)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('should throw a UnauthorizedException if payload.type is not refresh but isRefreshToken parameter is true', () => {
+      const rawToken = 'Bearer token';
+
+      jest
+        .spyOn(jwtService, 'verifyAsync')
+        .mockResolvedValue({ type: 'access' });
+
+      expect(authService.parseBearerToken(rawToken, true)).rejects.toThrow(
+        UnauthorizedException,
       );
     });
   });
