@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { Repository } from 'typeorm';
-import { User } from 'src/user/entity/user.entity';
+import { Role, User } from 'src/user/entity/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
@@ -235,6 +235,36 @@ describe('AuthService', () => {
       await expect(
         authService.authenticate('test@codefactory.ai', 'password'),
       ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('issueToken', () => {
+    const user = { id: 1, role: Role.user };
+    const token = 'token';
+
+    beforeEach(() => {
+      jest.spyOn(mockConfigService, 'get').mockReturnValue('secret');
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue('token');
+    });
+
+    it('should issue an access token', async () => {
+      const result = await authService.issueToken(user, false);
+
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        { sub: user.id, role: user.role, type: 'access' },
+        { secret: 'secret', expiresIn: 300 },
+      );
+      expect(result).toBe(token);
+    });
+
+    it('should issue an access token', async () => {
+      const result = await authService.issueToken(user, true);
+
+      expect(jwtService.signAsync).toHaveBeenCalledWith(
+        { sub: user.id, role: user.role, type: 'refresh' },
+        { secret: 'secret', expiresIn: '24h' },
+      );
+      expect(result).toBe(token);
     });
   });
 });
