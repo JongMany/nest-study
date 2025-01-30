@@ -60,13 +60,26 @@ export class MovieService {
     await this.cacheManager.set('MOVIE_RECENT', recentMovies, 3000); // 0은 영속적으로 저장
     return recentMovies;
   }
-  async findAll(dto: GetMoviesDto, userId?: number) {
-    const { title } = dto;
 
-    const queryBuilder = await this.movieRepository
+  async getMovies() {
+    return this.movieRepository
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres');
+  }
+  async getLikedMovies(movieIds: number[], userId: number) {
+    return this.movieUserLikeRepository
+      .createQueryBuilder('mul')
+      .leftJoinAndSelect('mul.user', 'user')
+      .leftJoinAndSelect('mul.movie', 'movie')
+      .where('movie.id IN(:...movieIds)', { movieIds })
+      .andWhere('user.id = :userId', { userId })
+      .getMany();
+  }
+  async findAll(dto: GetMoviesDto, userId?: number) {
+    const { title } = dto;
+
+    const queryBuilder = await this.getMovies();
 
     if (title) {
       queryBuilder.where('movie.title LIKE :title', { title: `%${title}%` });
@@ -88,15 +101,7 @@ export class MovieService {
       const movieIds = data.map((movie) => movie.id);
 
       const likedMovies =
-        movieIds.length < 1
-          ? []
-          : await this.movieUserLikeRepository
-              .createQueryBuilder('mul')
-              .leftJoinAndSelect('mul.user', 'user')
-              .leftJoinAndSelect('mul.movie', 'movie')
-              .where('movie.id IN(:...movieIds)', { movieIds })
-              .andWhere('user.id = :userId', { userId })
-              .getMany();
+        movieIds.length < 1 ? [] : await this.getLikedMovies(movieIds, userId);
 
       const likedMovieMap = likedMovies.reduce(
         (acc, cur) => ({
