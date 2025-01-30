@@ -45,4 +45,48 @@ describe('MovieService', () => {
   it('should be defined', () => {
     expect(movieService).toBeDefined();
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('findRecent', () => {
+    it('should return recent movies from cache', async () => {
+      const cachedMovies = [
+        {
+          id: 1,
+          title: 'Movie 1',
+        },
+      ];
+      jest.spyOn(cacheManager, 'get').mockResolvedValue(cachedMovies);
+
+      const result = await movieService.findRecent();
+      expect(cacheManager.get).toHaveBeenCalledWith('MOVIE_RECENT');
+      expect(result).toEqual(cachedMovies);
+    });
+
+    it('should fetch recent movies from the repository and cache them if not found in cache', async () => {
+      const recentMovies = [
+        {
+          id: 1,
+          title: 'Movie 1',
+        },
+      ];
+
+      jest.spyOn(cacheManager, 'get').mockResolvedValue(null);
+      jest
+        .spyOn(movieRepository, 'find')
+        .mockResolvedValue(recentMovies as Movie[]);
+
+      const result = await movieService.findRecent();
+
+      expect(cacheManager.get).toHaveBeenCalledWith('MOVIE_RECENT');
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        'MOVIE_RECENT',
+        recentMovies,
+        3000,
+      );
+      expect(result).toEqual(recentMovies);
+    });
+  });
 });
