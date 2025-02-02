@@ -11,6 +11,7 @@ import { CommonService } from 'src/common/common.service';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { GetMoviesDto } from './dto/get-movies.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MovieService', () => {
   let movieService: MovieService;
@@ -207,6 +208,32 @@ describe('MovieService', () => {
         nextCursor: null,
         count: 1,
       });
+    });
+  });
+
+  describe('findOne', () => {
+    let findMovieDetailMock: jest.SpyInstance;
+
+    beforeEach(() => {
+      findMovieDetailMock = jest.spyOn(movieService, 'findMovieDetail');
+    });
+
+    it('should return a movie if found', async () => {
+      const movie = { id: 1, title: 'Movie 1' };
+
+      findMovieDetailMock.mockResolvedValue(movie);
+
+      const result = await movieService.findOne(1);
+
+      expect(findMovieDetailMock).toHaveBeenCalledWith(1);
+      expect(result).toEqual(movie);
+    });
+
+    it('should throw NotFoundException if movie is not found', async () => {
+      findMovieDetailMock.mockResolvedValue(null);
+
+      await expect(movieService.findOne(1)).rejects.toThrow(NotFoundException);
+      expect(findMovieDetailMock).toHaveBeenCalledWith(1);
     });
   });
 });
