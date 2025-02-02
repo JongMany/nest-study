@@ -175,6 +175,71 @@ export class MovieService {
     // return movie;
   }
 
+  /** istanbul ignore next */
+  async createMovieDetail(
+    queryRunner: QueryRunner,
+    createMovieDto: CreateMovieDto,
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .insert()
+      .into(MovieDetail)
+      .values({
+        detail: createMovieDto.detail,
+      })
+      .execute();
+  }
+
+  /** istanbul ignore next */
+  async createMovie(
+    queryRunner: QueryRunner,
+    createMovieDto: CreateMovieDto,
+    director: Director,
+    movieDetailId: number,
+    userId: number,
+    movieFolder: string,
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .insert()
+      .into(Movie)
+      .values({
+        title: createMovieDto.title,
+        detail: { id: movieDetailId },
+        director,
+        creator: {
+          id: userId,
+        },
+        movieFilePath: join(movieFolder, createMovieDto.movieFilename),
+      })
+      .execute();
+  }
+
+  /** istanbul ignore next */
+  async createMovieGenreRelation(
+    queryRunner: QueryRunner,
+    movieId: number,
+    genres: Genre[],
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .relation(Movie, 'genres')
+      .of(movieId)
+      .add(genres.map((genre) => genre.id));
+  }
+
+  /** istanbul ignore next */
+  async renameMovieFile(
+    tempFolder: string,
+    movieFolder: string,
+    createMovieDto: CreateMovieDto,
+  ) {
+    return rename(
+      join(process.cwd(), tempFolder, createMovieDto.movieFilename),
+      join(process.cwd(), movieFolder, createMovieDto.movieFilename),
+    );
+  }
+
   // Query Builder로 한 번에 안되는 것 -> 같이 생성하는 것(Cascade), ManyToMany
   async create(
     createMovieDto: CreateMovieDto,
@@ -211,14 +276,10 @@ export class MovieService {
     }
 
     // Transaction이 필요함
-    const movieDetail = await queryRunner.manager
-      .createQueryBuilder()
-      .insert()
-      .into(MovieDetail)
-      .values({
-        detail: createMovieDto.detail,
-      })
-      .execute();
+    const movieDetail = await this.createMovieDetail(
+      queryRunner,
+      createMovieDto,
+    );
 
     // throw new NotFoundException('트랜잭션 테스트용');
 
@@ -228,29 +289,19 @@ export class MovieService {
     // temp 폴더의 파일을 movie 폴더로 이동
     const tempFolder = join('public', 'temp');
 
-    const movie = await queryRunner.manager
-      .createQueryBuilder()
-      .insert()
-      .into(Movie)
-      .values({
-        title: createMovieDto.title,
-        detail: { id: movieDetailId },
-        director,
-        creator: {
-          id: userId,
-        },
-        movieFilePath: join(movieFolder, createMovieDto.movieFilename),
-      })
-      .execute();
+    const movie = await this.createMovie(
+      queryRunner,
+      createMovieDto,
+      director,
+      movieDetailId,
+      userId,
+      movieFolder,
+    );
 
     const movieId = movie.identifiers[0].id;
 
     // Genre 관계 넣기
-    await queryRunner.manager
-      .createQueryBuilder()
-      .relation(Movie, 'genres')
-      .of(movieId)
-      .add(genres.map((genre) => genre.id));
+    await this.createMovieGenreRelation(queryRunner, movieId, genres);
 
     // const movie = await this.movieRepository.save({
     //   title: createMovieDto.title,
@@ -261,10 +312,7 @@ export class MovieService {
 
     // await queryRunner.commitTransaction();
 
-    await rename(
-      join(process.cwd(), tempFolder, createMovieDto.movieFilename),
-      join(process.cwd(), movieFolder, createMovieDto.movieFilename),
-    );
+    await this.renameMovieFile(tempFolder, movieFolder, createMovieDto);
 
     return await queryRunner.manager.findOne(Movie, {
       where: {
