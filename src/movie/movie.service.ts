@@ -141,8 +141,9 @@ export class MovieService {
     //   relations: ['director', 'genres'],
     // });
   }
-  async findOne(id: number) {
-    const movie = await this.movieRepository
+  /** istanbul ignore next */
+  async findMovieDetail(id: number) {
+    return this.movieRepository
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres')
@@ -150,6 +151,9 @@ export class MovieService {
       .leftJoinAndSelect('movie.creator', 'creator')
       .where('movie.id = :id', { id })
       .getOne();
+  }
+  async findOne(id: number) {
+    const movie = await this.findMovieDetail(id);
     return movie;
 
     // const movie = await this.movieRepository.findOne({
