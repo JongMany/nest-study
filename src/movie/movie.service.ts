@@ -154,6 +154,11 @@ export class MovieService {
   }
   async findOne(id: number) {
     const movie = await this.findMovieDetail(id);
+
+    if (!movie) {
+      throw new NotFoundException(`Movie with ID ${id} not found`);
+    }
+
     return movie;
 
     // const movie = await this.movieRepository.findOne({
