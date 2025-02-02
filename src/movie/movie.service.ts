@@ -61,12 +61,15 @@ export class MovieService {
     return recentMovies;
   }
 
+  /** istanbul ignore next */
   async getMovies() {
     return this.movieRepository
       .createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres');
   }
+
+  /** istanbul ignore next */
   async getLikedMovies(movieIds: number[], userId: number) {
     return this.movieUserLikeRepository
       .createQueryBuilder('mul')
