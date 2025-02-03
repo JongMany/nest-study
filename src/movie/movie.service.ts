@@ -329,6 +329,51 @@ export class MovieService {
     // }
   }
 
+  /** istanbul ignore next */
+  async updateMovie(
+    queryRunner: QueryRunner,
+    movieUpdateFields: UpdateMovieDto,
+    id: number,
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .update(Movie)
+      .set(movieUpdateFields)
+      .where('id = :id', { id })
+      .execute();
+  }
+
+  async updateMovieDetail(
+    queryRunner: QueryRunner,
+    detail: string,
+    movie: Movie,
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .update(MovieDetail)
+      .set({
+        detail,
+      })
+      .where('id = :id', { id: movie.detail.id })
+      .execute();
+  }
+
+  async updateMovieGenreRelation(
+    queryRunner: QueryRunner,
+    id: number,
+    newGenres: Genre[],
+    movie: Movie,
+  ) {
+    return queryRunner.manager
+      .createQueryBuilder()
+      .relation(Movie, 'genres')
+      .of(id)
+      .addAndRemove(
+        newGenres.map((genre) => genre.id),
+        movie.genres.map((genre) => genre.id),
+      );
+  }
+
   async update(id: number, updateMovieDto: UpdateMovieDto) {
     const { detail, directorId, genreIds, ...movieRest } = updateMovieDto;
     const queryRunner = this.dataSource.createQueryRunner();
@@ -385,22 +430,10 @@ export class MovieService {
 
       // await this.movieRepository.update({ id }, { ...movieUpdateFields });
 
-      await queryRunner.manager
-        .createQueryBuilder()
-        .update(Movie)
-        .set(movieUpdateFields)
-        .where('id = :id', { id })
-        .execute();
+      await this.updateMovie(queryRunner, movieUpdateFields, id);
 
       if (detail) {
-        await queryRunner.manager
-          .createQueryBuilder()
-          .update(MovieDetail)
-          .set({
-            detail,
-          })
-          .where('id = :id', { id: movie.detail.id })
-          .execute();
+        await this.updateMovieDetail(queryRunner, detail, movie);
         // await this.movieDetailRepository.update(
         //   { id: movie.detail.id },
         //   { detail },
@@ -408,14 +441,7 @@ export class MovieService {
       }
 
       if (newGenres) {
-        await queryRunner.manager
-          .createQueryBuilder()
-          .relation(Movie, 'genres')
-          .of(id)
-          .addAndRemove(
-            newGenres.map((genre) => genre.id),
-            movie.genres.map((genre) => genre.id),
-          );
+        await this.updateMovieGenreRelation(queryRunner, id, newGenres, movie);
       }
 
       // const updatedMovie = await this.movieRepository.findOne({
