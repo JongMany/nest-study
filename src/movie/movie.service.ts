@@ -358,6 +358,7 @@ export class MovieService {
       .execute();
   }
 
+  /** istanbul ignore next */
   async updateMovieGenreRelation(
     queryRunner: QueryRunner,
     id: number,

@@ -13,6 +13,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 
 describe('MovieService', () => {
   let movieService: MovieService;
@@ -391,6 +392,213 @@ describe('MovieService', () => {
           id: In(createMovieDto.genreIds),
         },
       });
+    });
+  });
+
+  describe('update', () => {
+    let queryRunner: jest.Mocked<QueryRunner>;
+    let updateMovieMock: jest.SpyInstance;
+    let updateMovieDetailMock: jest.SpyInstance;
+    let updateMovieGenreRelationMock: jest.SpyInstance;
+
+    beforeEach(() => {
+      queryRunner = {
+        connect: jest.fn(),
+        startTransaction: jest.fn(),
+        commitTransaction: jest.fn(),
+        rollbackTransaction: jest.fn(),
+        release: jest.fn(),
+
+        manager: {
+          findOne: jest.fn(),
+          find: jest.fn(),
+          save: jest.fn(),
+        },
+      } as any as jest.Mocked<QueryRunner>;
+
+      updateMovieMock = jest.spyOn(movieService, 'updateMovie');
+      updateMovieDetailMock = jest.spyOn(movieService, 'updateMovieDetail');
+      updateMovieGenreRelationMock = jest.spyOn(
+        movieService,
+        'updateMovieGenreRelation',
+      );
+
+      jest.spyOn(dataSource, 'createQueryRunner').mockReturnValue(queryRunner);
+    });
+    it('should update a movie successfully', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        directorId: 1,
+        genreIds: [1, 2],
+        detail: 'Updated Detail',
+      };
+      const movie = {
+        id: 1,
+        detail: { id: 1 },
+        genres: [{ id: 1 }, { id: 2 }],
+      };
+      const director = { id: 1, name: 'Director' };
+
+      const genres = [
+        { id: 1, name: 'Genre1' },
+        { id: 2, name: 'Genre2' },
+      ];
+
+      (queryRunner.connect as any).mockResolvedValue(null);
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(movie);
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(director);
+      jest.spyOn(movieRepository, 'findOne').mockResolvedValue(movie as Movie);
+      (queryRunner.manager.find as any).mockResolvedValueOnce(genres);
+
+      updateMovieMock.mockResolvedValue(undefined);
+      updateMovieDetailMock.mockResolvedValue(undefined);
+      updateMovieGenreRelationMock.mockResolvedValue(undefined);
+
+      const result = await movieService.update(1, updateMovieDto);
+
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Movie, {
+        where: { id: 1 },
+        relations: ['detail', 'genres'],
+      });
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Director, {
+        where: { id: updateMovieDto.directorId },
+      });
+      expect(queryRunner.manager.find).toHaveBeenCalledWith(Genre, {
+        where: { id: In(updateMovieDto.genreIds) },
+      });
+      expect(updateMovieMock).toHaveBeenCalledWith(
+        queryRunner,
+        expect.any(Object),
+        1,
+      );
+      expect(updateMovieDetailMock).toHaveBeenCalledWith(
+        queryRunner,
+        updateMovieDto.detail,
+        movie,
+      );
+      expect(updateMovieGenreRelationMock).toHaveBeenCalledWith(
+        queryRunner,
+        1,
+        genres,
+        movie,
+      );
+      expect(queryRunner.commitTransaction).toHaveBeenCalled();
+      expect(result).toEqual(movie);
+    });
+
+    it('should throw NotFoundException if movie does not exist', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        directorId: 1,
+        genreIds: [1, 2],
+        detail: 'Updated Detail',
+      };
+
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(null);
+
+      await expect(movieService.update(1, updateMovieDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Movie, {
+        where: { id: 1 },
+        relations: ['detail', 'genres'],
+      });
+      expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+    it('should throw NotFoundException if new director does not exist', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        directorId: 1,
+      };
+      const movie = {
+        id: 1,
+        detail: { id: 1 },
+        genres: [],
+      };
+
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(movie);
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(null);
+
+      await expect(movieService.update(1, updateMovieDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Movie, {
+        where: { id: 1 },
+        relations: ['detail', 'genres'],
+      });
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Director, {
+        where: { id: updateMovieDto.directorId },
+      });
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should throw NotFoundException if new genres do not exist', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        genreIds: [1, 2],
+      };
+      const movie = {
+        id: 1,
+        detail: { id: 1 },
+        genres: [],
+      };
+
+      (queryRunner.manager.findOne as any).mockResolvedValueOnce(movie);
+      (queryRunner.manager.find as any).mockResolvedValueOnce([
+        { id: 1, name: 'Genre1' },
+      ]);
+
+      await expect(movieService.update(1, updateMovieDto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Movie, {
+        where: { id: 1 },
+        relations: ['detail', 'genres'],
+      });
+      expect(queryRunner.manager.find).toHaveBeenCalledWith(Genre, {
+        where: { id: In(updateMovieDto.genreIds) },
+      });
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
+    });
+
+    it('should rollback transaction and rethrow error on failure', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        directorId: 1,
+        genreIds: [1, 2],
+        detail: 'Updated Detail',
+      };
+      const movie = {
+        id: 1,
+        detail: { id: 1 },
+        genres: [],
+      };
+
+      (queryRunner.manager.findOne as any).mockRejectedValueOnce(
+        new Error('Database Error'),
+      );
+
+      await expect(movieService.update(1, updateMovieDto)).rejects.toThrow(
+        'Database Error',
+      );
+      expect(queryRunner.connect).toHaveBeenCalled();
+      expect(queryRunner.startTransaction).toHaveBeenCalled();
+      expect(queryRunner.manager.findOne).toHaveBeenCalledWith(Movie, {
+        where: { id: 1 },
+        relations: ['detail', 'genres'],
+      });
+      expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
 });
