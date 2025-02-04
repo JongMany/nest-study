@@ -601,4 +601,47 @@ describe('MovieService', () => {
       expect(queryRunner.rollbackTransaction).toHaveBeenCalled();
     });
   });
+
+  describe('remove', () => {
+    let findOneMock: jest.SpyInstance;
+    let deleteMovieMock: jest.SpyInstance;
+    let deleteMovieDetailMock: jest.SpyInstance;
+
+    beforeEach(() => {
+      findOneMock = jest.spyOn(movieRepository, 'findOne');
+      deleteMovieMock = jest.spyOn(movieService, 'deleteMovie');
+      deleteMovieDetailMock = jest.spyOn(movieDetailRepository, 'delete');
+    });
+
+    it('should remove a movie successfully', async () => {
+      const movie = { id: 1, detail: { id: 2 } };
+
+      findOneMock.mockResolvedValue(movie);
+      deleteMovieMock.mockResolvedValue(undefined);
+      deleteMovieDetailMock.mockResolvedValue(undefined);
+
+      const result = await movieService.remove(1);
+
+      expect(findOneMock).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['detail'],
+      });
+      expect(deleteMovieMock).toHaveBeenCalledWith(1);
+      expect(deleteMovieDetailMock).toHaveBeenCalledWith(movie.detail.id);
+      expect(result).toBe(1);
+    });
+
+    it('should throw NotFoundException if movie does not exist', async () => {
+      findOneMock.mockResolvedValueOnce(null);
+
+      await expect(movieService.remove(1)).rejects.toThrow(NotFoundException);
+
+      expect(findOneMock).toHaveBeenCalledWith({
+        where: { id: 1 },
+        relations: ['detail'],
+      });
+      expect(deleteMovieMock).not.toHaveBeenCalled();
+      expect(deleteMovieDetailMock).not.toHaveBeenCalled();
+    });
+  });
 });
