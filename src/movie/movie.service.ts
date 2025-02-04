@@ -61,7 +61,7 @@ export class MovieService {
     return recentMovies;
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async getMovies() {
     return this.movieRepository
       .createQueryBuilder('movie')
@@ -69,7 +69,7 @@ export class MovieService {
       .leftJoinAndSelect('movie.genres', 'genres');
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async getLikedMovies(movieIds: number[], userId: number) {
     return this.movieUserLikeRepository
       .createQueryBuilder('mul')
@@ -141,7 +141,7 @@ export class MovieService {
     //   relations: ['director', 'genres'],
     // });
   }
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async findMovieDetail(id: number) {
     return this.movieRepository
       .createQueryBuilder('movie')
@@ -175,7 +175,7 @@ export class MovieService {
     // return movie;
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async createMovieDetail(
     queryRunner: QueryRunner,
     createMovieDto: CreateMovieDto,
@@ -190,7 +190,7 @@ export class MovieService {
       .execute();
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async createMovie(
     queryRunner: QueryRunner,
     createMovieDto: CreateMovieDto,
@@ -215,7 +215,7 @@ export class MovieService {
       .execute();
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async createMovieGenreRelation(
     queryRunner: QueryRunner,
     movieId: number,
@@ -228,7 +228,7 @@ export class MovieService {
       .add(genres.map((genre) => genre.id));
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async renameMovieFile(
     tempFolder: string,
     movieFolder: string,
@@ -329,7 +329,7 @@ export class MovieService {
     // }
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async updateMovie(
     queryRunner: QueryRunner,
     movieUpdateFields: UpdateMovieDto,
@@ -343,6 +343,7 @@ export class MovieService {
       .execute();
   }
 
+  /* istanbul ignore next */
   async updateMovieDetail(
     queryRunner: QueryRunner,
     detail: string,
@@ -358,7 +359,7 @@ export class MovieService {
       .execute();
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async updateMovieGenreRelation(
     queryRunner: QueryRunner,
     id: number,
@@ -472,7 +473,7 @@ export class MovieService {
       await queryRunner.release();
     }
   }
-
+  /* istanbul ignore next */
   async deleteMovie(id: number) {
     return this.movieRepository
       .createQueryBuilder()
@@ -499,7 +500,7 @@ export class MovieService {
     return id;
   }
 
-  /** istanbul ignore next */
+  /* istanbul ignore next */
   async getLikedRecord(movieId: number, userId: number) {
     return this.movieUserLikeRepository
       .createQueryBuilder('mul')
