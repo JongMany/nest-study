@@ -499,6 +499,17 @@ export class MovieService {
     return id;
   }
 
+  /** istanbul ignore next */
+  async getLikedRecord(movieId: number, userId: number) {
+    return this.movieUserLikeRepository
+      .createQueryBuilder('mul')
+      .leftJoinAndSelect('mul.movie', 'movie')
+      .leftJoinAndSelect('mul.user', 'user')
+      .where('movie.id = :movieId', { movieId })
+      .andWhere('user.id = :userId', { userId })
+      .getOne();
+  }
+
   async toggleMovieLike(movieId: number, userId: number, isLike: boolean) {
     const movie = await this.movieRepository.findOne({
       where: {
@@ -519,13 +530,7 @@ export class MovieService {
       throw new UnauthorizedException('존재하지 않는 유저입니다.');
     }
 
-    const likeRecord = await this.movieUserLikeRepository
-      .createQueryBuilder('mul')
-      .leftJoinAndSelect('mul.movie', 'movie')
-      .leftJoinAndSelect('mul.user', 'user')
-      .where('movie.id = :movieId', { movieId })
-      .andWhere('user.id = :userId', { userId })
-      .getOne();
+    const likeRecord = await this.getLikedRecord(movieId, userId);
 
     if (likeRecord) {
       if (isLike === likeRecord.isLike) {
@@ -552,13 +557,7 @@ export class MovieService {
       });
     }
 
-    const result = await this.movieUserLikeRepository
-      .createQueryBuilder('mul')
-      .leftJoinAndSelect('mul.movie', 'movie')
-      .leftJoinAndSelect('mul.user', 'user')
-      .where('movie.id = :movieId', { movieId })
-      .andWhere('user.id = :userId', { userId })
-      .getOne();
+    const result = await this.getLikedRecord(movieId, userId);
 
     return {
       isLike: result && result.isLike,
