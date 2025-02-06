@@ -23,6 +23,7 @@ describe('MovieService - Integration Test', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite', // 통합테스트용 DB
           database: ':memory:',
+          // database: './test.sqlite',
           dropSchema: true,
           entities: [Movie, MovieDetail, Director, Genre, User, MovieUserLike],
           synchronize: true,
