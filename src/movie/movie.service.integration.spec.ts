@@ -10,6 +10,7 @@ import { MovieUserLike } from './entity/movie-user-like.entity';
 import { MovieService } from './movie.service';
 import { CommonService } from 'src/common/common.service';
 import { DataSource } from 'typeorm';
+import { CreateMovieDto } from './dto/create-movie.dto';
 
 describe('MovieService - Integration Test', () => {
   let service: MovieService;
@@ -160,6 +161,33 @@ describe('MovieService - Integration Test', () => {
 
       expect(result.data).toHaveLength(10);
       expect(result.data[0]).toHaveProperty('likeStatus');
+    });
+  });
+
+  describe('create', () => {
+    beforeEach(() => {
+      jest.spyOn(service, 'renameMovieFile').mockResolvedValue();
+    });
+
+    it('should create movie correctly', async () => {
+      const createMovieDto: CreateMovieDto = {
+        title: 'New Movie',
+        detail: 'New Movie Detail',
+        directorId: directors[0].id,
+        genreIds: genres.map((x) => x.id),
+        movieFilename: 'new_movie.mp4',
+      };
+
+      const result = await service.create(
+        createMovieDto,
+        users[0].id,
+        dataSource.createQueryRunner(),
+      );
+      expect(result.title).toBe(createMovieDto.title);
+      expect(result.director.id).toBe(createMovieDto.directorId);
+      expect(result.genres.map((g) => g.id)).toEqual(createMovieDto.genreIds);
+      expect(result.detail.detail).toBe(createMovieDto.detail);
+      expect(service.renameMovieFile).toHaveBeenCalled();
     });
   });
 });
