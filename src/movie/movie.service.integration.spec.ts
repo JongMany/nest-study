@@ -116,4 +116,26 @@ describe('MovieService - Integration Test', () => {
     );
     await movieRepository.save(movies);
   });
+
+  describe('findRecent', () => {
+    it('should return recent movies', async () => {
+      const result = await service.findRecent();
+
+      const sortedResult = [...movies].sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+      );
+      const sortedResultIds = sortedResult.slice(0, 10).map((x) => x.id);
+
+      expect(result).toHaveLength(10);
+      expect(result.map((x) => x.id)).toEqual(sortedResultIds);
+    });
+
+    it('should cache recent movies', async () => {
+      const result = await service.findRecent();
+
+      const cachedData = await cacheManager.get('MOVIE_RECENT');
+
+      expect(cachedData).toEqual(result);
+    });
+  });
 });
