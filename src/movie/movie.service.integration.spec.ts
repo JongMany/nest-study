@@ -1,11 +1,11 @@
-import { CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
+import { Cache, CACHE_MANAGER, CacheModule } from '@nestjs/cache-manager';
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Movie } from './entity/movie.entity';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { Director } from 'src/director/entity/director.entity';
 import { Genre } from 'src/genre/entity/genre.entity';
-import { User } from 'src/user/entity/user.entity';
+import { Role, User } from 'src/user/entity/user.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { MovieService } from './movie.service';
 import { CommonService } from 'src/common/common.service';
@@ -13,8 +13,13 @@ import { DataSource } from 'typeorm';
 
 describe('MovieService - Integration Test', () => {
   let service: MovieService;
-  let cacheManage: Cache;
+  let cacheManager: Cache;
   let dataSource: DataSource;
+
+  let users: User[];
+  let directors: Director[];
+  let genres: Genre[];
+  let movies: Movie[];
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,13 +47,73 @@ describe('MovieService - Integration Test', () => {
     }).compile();
 
     service = module.get<MovieService>(MovieService);
-    cacheManage = module.get<Cache>(CACHE_MANAGER);
+    cacheManager = module.get<Cache>(CACHE_MANAGER);
     dataSource = module.get<DataSource>(DataSource);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-    expect(cacheManage).toBeDefined();
+    expect(cacheManager).toBeDefined();
     expect(dataSource).toBeDefined();
+  });
+
+  afterAll(async () => {
+    await dataSource.destroy();
+  });
+
+  beforeEach(async () => {
+    await cacheManager.reset();
+
+    const movieRepository = dataSource.getRepository(Movie);
+    const movieDetailRepository = dataSource.getRepository(MovieDetail);
+    const userRepository = dataSource.getRepository(User);
+    const directorRepository = dataSource.getRepository(Director);
+    const genreRepository = dataSource.getRepository(Genre);
+
+    users = [1, 2].map((x) =>
+      userRepository.create({
+        id: x,
+        email: `test${x}@example.com`,
+        password: 'password',
+        role: Role.user,
+      }),
+    );
+    await userRepository.save(users);
+
+    directors = [1, 2].map((x) =>
+      directorRepository.create({
+        id: x,
+        name: `director ${x}`,
+        dob: new Date('1992-11-14'),
+        nationality: 'korean',
+      }),
+    );
+    await directorRepository.save(directors);
+
+    genres = [1, 2].map((x) =>
+      genreRepository.create({
+        id: x,
+        name: `genre ${x}`,
+      }),
+    );
+    await genreRepository.save(genres);
+
+    movies = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((x) =>
+      movieRepository.create({
+        id: x,
+        title: `movie ${x}`,
+        likeCount: 0,
+        dislikeCount: 0,
+        director: directors[0],
+        creator: users[0],
+        genres: genres,
+        detail: movieDetailRepository.create({
+          detail: `movie ${x} detail`,
+        }),
+        movieFilePath: 'movies/movie1.mp4',
+        createdAt: new Date(`2023-9-${x}`),
+      }),
+    );
+    await movieRepository.save(movies);
   });
 });
