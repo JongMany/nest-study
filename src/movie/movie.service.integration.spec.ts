@@ -138,4 +138,28 @@ describe('MovieService - Integration Test', () => {
       expect(cachedData).toEqual(result);
     });
   });
+
+  describe('findAll', () => {
+    it('should return movies with correct titles', async () => {
+      const dto = {
+        title: 'Movie 15',
+        order: ['createdAt_DESC'],
+        take: 10,
+      };
+      const result = await service.findAll(dto);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].title).toBe('movie 15');
+      expect(result.data[0]).not.toHaveProperty('likeStatus');
+    });
+
+    it('should return likeStatus if user id is provided', async () => {
+      const dto = { order: ['createdAt_ASC'], take: 10 };
+
+      const result = await service.findAll(dto, users[0].id);
+
+      expect(result.data).toHaveLength(10);
+      expect(result.data[0]).toHaveProperty('likeStatus');
+    });
+  });
 });
