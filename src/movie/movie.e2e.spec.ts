@@ -9,6 +9,7 @@ import { Genre } from 'src/genre/entity/genre.entity';
 import { Movie } from './entity/movie.entity';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 describe('MovieController (e2e)', () => {
   let app: INestApplication;
@@ -18,6 +19,7 @@ describe('MovieController (e2e)', () => {
   let directors: Director[];
   let genres: Genre[];
   let movies: Movie[];
+  let token: string;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -96,6 +98,21 @@ describe('MovieController (e2e)', () => {
       }),
     );
     await movieRepository.save(movies);
+
+    // Authenticate
+    const authService = moduleFixture.get<AuthService>(AuthService);
+    token = await authService.issueToken(
+      { id: users[0].id, role: Role.admin },
+      false,
+    );
+  });
+
+  afterAll(async () => {
+    await new Promise((resolve, reject) => {
+      setTimeout(resolve, 500);
+    });
+    await dataSource.destroy();
+    await app.close();
   });
 
   describe('[GET /movie]', () => {
@@ -105,6 +122,45 @@ describe('MovieController (e2e)', () => {
       ).get('/movie');
 
       expect(statusCode).toBe(200);
+      expect(body).toHaveProperty('data');
+      expect(body).toHaveProperty('nextCursor');
+      expect(body).toHaveProperty('count');
+
+      expect(body.data).toHaveLength(5);
+    });
+  });
+
+  describe('[GET /movie/recent]', () => {
+    it('should get recent movies', async () => {
+      const { body, statusCode } = await request(app.getHttpServer())
+        .get('/movie/recent')
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(200);
+      expect(body).toHaveLength(10);
+    });
+  });
+
+  describe('[Get /movie/{id}]', () => {
+    it('should get movie by id', async () => {
+      const movieId = movies[0].id;
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .get(`/movie/${movieId}`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(200);
+      expect(body.id).toBe(movieId);
+    });
+
+    it('should throw 404 Error if movie does not exist', async () => {
+      const movieId = 999999;
+      const { body, statusCode } = await request(app.getHttpServer())
+        .get(`/movie/${movieId}`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(404);
+      expect(body.message).toBe(`Movie with ID ${movieId} not found`);
     });
   });
 });
