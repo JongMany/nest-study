@@ -278,4 +278,17 @@ describe('MovieService - Integration Test', () => {
       expect(result.isLike).toBeNull();
     });
   });
+
+  describe('findOne', () => {
+    it('should return movie correctly', async () => {
+      const movieId = movies[0].id;
+      const result = await service.findOne(movieId);
+
+      expect(result.id).toBe(movieId);
+    });
+
+    it('should throw NotFoundException if movie does not exist', async () => {
+      await expect(service.findOne(999)).rejects.toThrow(NotFoundException);
+    });
+  });
 });
