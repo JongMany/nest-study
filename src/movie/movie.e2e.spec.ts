@@ -225,4 +225,26 @@ describe('MovieController (e2e)', () => {
       expect(body.genres.map((g) => g.id)).toEqual(dto.genreIds);
     });
   });
+
+  describe('[DELETE /movie/{id}]', () => {
+    it('should delete existing movie', async () => {
+      const movieId = movies[0].id;
+
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/movie/${movieId}`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(200);
+    });
+
+    it('should throw 404 Error if movie does not exist', async () => {
+      const movieId = 99999;
+
+      const { statusCode } = await request(app.getHttpServer())
+        .delete(`/movie/${movieId}`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(404);
+    });
+  });
 });
