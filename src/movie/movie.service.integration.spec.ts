@@ -238,4 +238,44 @@ describe('MovieService - Integration Test', () => {
       await expect(service.remove(999)).rejects.toThrow(NotFoundException);
     });
   });
+
+  describe('toggleMovieLike', () => {
+    it('should create like correctly', async () => {
+      const movieId = movies[0].id;
+      const userId = users[0].id;
+
+      const result = await service.toggleMovieLike(movieId, userId, true);
+
+      expect(result).toEqual({ isLike: true });
+    });
+
+    it('should create dislike correctly', async () => {
+      const movieId = movies[0].id;
+      const userId = users[0].id;
+
+      const result = await service.toggleMovieLike(movieId, userId, false);
+
+      expect(result).toEqual({ isLike: false });
+    });
+
+    it('should toggle like correctly', async () => {
+      const movieId = movies[0].id;
+      const userId = users[0].id;
+
+      await service.toggleMovieLike(movieId, userId, true);
+      const result = await service.toggleMovieLike(movieId, userId, true);
+
+      expect(result.isLike).toBeNull();
+    });
+
+    it('should toggle dislike correctly', async () => {
+      const movieId = movies[0].id;
+      const userId = users[0].id;
+
+      await service.toggleMovieLike(movieId, userId, false);
+      const result = await service.toggleMovieLike(movieId, userId, false);
+
+      expect(result.isLike).toBeNull();
+    });
+  });
 });
