@@ -10,6 +10,7 @@ import { Movie } from './entity/movie.entity';
 import { MovieDetail } from './entity/movie-detail.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { CreateMovieDto } from './dto/create-movie.dto';
 
 describe('MovieController (e2e)', () => {
   let app: INestApplication;
@@ -161,6 +162,40 @@ describe('MovieController (e2e)', () => {
 
       expect(statusCode).toBe(404);
       expect(body.message).toBe(`Movie with ID ${movieId} not found`);
+    });
+  });
+
+  describe('[POST /movie]', () => {
+    it('should create movie', async () => {
+      const {
+        body: { filename },
+      } = await request(app.getHttpServer())
+        .post(`/common/video`)
+        .set('authorization', `Bearer ${token}`)
+        .attach('video', Buffer.from('test'), 'movie.mp4')
+        .expect(201); // test용 버퍼 파일
+
+      const dto: CreateMovieDto = {
+        title: 'Test Movie',
+        detail: 'Test Movie Detail',
+        directorId: directors[0].id,
+        genreIds: genres.map((g) => g.id),
+        movieFilename: filename,
+      };
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .post(`/movie`)
+        .set('authorization', `Bearer ${token}`)
+        .send(dto);
+
+      expect(statusCode).toBe(201);
+
+      expect(body).toBeDefined();
+      expect(body.title).toBe(dto.title);
+      expect(body.detail.detail).toBe(dto.detail);
+      expect(body.director.id).toBe(dto.directorId);
+      expect(body.genres.map((g) => g.id)).toEqual(dto.genreIds);
+      expect(body.movieFilePath).toContain(dto.movieFilename);
     });
   });
 });
