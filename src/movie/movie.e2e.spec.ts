@@ -23,7 +23,7 @@ describe('MovieController (e2e)', () => {
   let movies: Movie[];
   let token: string;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -245,6 +245,59 @@ describe('MovieController (e2e)', () => {
         .set('authorization', `Bearer ${token}`);
 
       expect(statusCode).toBe(404);
+    });
+  });
+
+  describe('[POST /movie/{id}/like]', () => {
+    it('should like a movie', async () => {
+      const movieId = movies[2].id;
+      const { statusCode, body } = await request(app.getHttpServer())
+        .post(`/movie/${movieId}/like`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(201);
+
+      expect(body).toBeDefined();
+      expect(body.isLike).toBe(true);
+    });
+
+    it('should cancel like a movie', async () => {
+      const movieId = movies[2].id;
+      const { statusCode, body } = await request(app.getHttpServer())
+        .post(`/movie/${movieId}/like`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(201);
+
+      expect(body).toBeDefined();
+      expect(body.isLike).toBeNull();
+    });
+  });
+
+  describe('[POST /movie/{id}/dislike]', () => {
+    it('should dislike a movie', async () => {
+      const movieId = movies[1].id;
+      const { statusCode, body } = await request(app.getHttpServer())
+        .post(`/movie/${movieId}/dislike`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(201);
+
+      expect(body).toBeDefined();
+      expect(body.isLike).toBe(false);
+    });
+
+    it('should cancel dislike a movie', async () => {
+      const movieId = movies[1].id;
+
+      const { statusCode, body } = await request(app.getHttpServer())
+        .post(`/movie/${movieId}/dislike`)
+        .set('authorization', `Bearer ${token}`);
+
+      expect(statusCode).toBe(201);
+
+      expect(body).toBeDefined();
+      expect(body.isLike).toBeNull();
     });
   });
 });
