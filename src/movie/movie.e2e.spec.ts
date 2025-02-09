@@ -11,6 +11,7 @@ import { MovieDetail } from './entity/movie-detail.entity';
 import { MovieUserLike } from './entity/movie-user-like.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
 
 describe('MovieController (e2e)', () => {
   let app: INestApplication;
@@ -196,6 +197,32 @@ describe('MovieController (e2e)', () => {
       expect(body.director.id).toBe(dto.directorId);
       expect(body.genres.map((g) => g.id)).toEqual(dto.genreIds);
       expect(body.movieFilePath).toContain(dto.movieFilename);
+    });
+  });
+
+  describe('[PATCH /movie/{id}]', () => {
+    it('should update movie if exists', async () => {
+      const dto: UpdateMovieDto = {
+        title: 'Updated Test Movie',
+        detail: 'Updated Test Movie Detail',
+        directorId: directors[0].id,
+        genreIds: [genres[0].id],
+      };
+
+      const movieId = movies[0].id;
+
+      const { body, statusCode } = await request(app.getHttpServer())
+        .patch(`/movie/${movieId}`)
+        .set('authorization', `Bearer ${token}`)
+        .send(dto);
+
+      expect(statusCode).toBe(200);
+
+      expect(body).toBeDefined();
+      expect(body.title).toBe(dto.title);
+      expect(body.detail.detail).toBe(dto.detail);
+      expect(body.director.id).toBe(dto.directorId);
+      expect(body.genres.map((g) => g.id)).toEqual(dto.genreIds);
     });
   });
 });
