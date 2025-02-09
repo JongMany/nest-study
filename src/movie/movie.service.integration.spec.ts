@@ -11,6 +11,8 @@ import { MovieService } from './movie.service';
 import { CommonService } from 'src/common/common.service';
 import { DataSource } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
+import { UpdateMovieDto } from './dto/update-movie.dto';
+import { NotFoundException } from '@nestjs/common';
 
 describe('MovieService - Integration Test', () => {
   let service: MovieService;
@@ -188,6 +190,39 @@ describe('MovieService - Integration Test', () => {
       expect(result.genres.map((g) => g.id)).toEqual(createMovieDto.genreIds);
       expect(result.detail.detail).toBe(createMovieDto.detail);
       expect(service.renameMovieFile).toHaveBeenCalled();
+    });
+  });
+
+  describe('update', () => {
+    it('should update movie correctly', async () => {
+      const movieId = movies[0].id;
+
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        detail: 'Updated Movie Detail',
+        directorId: directors[1].id,
+        genreIds: [genres[0].id],
+      };
+
+      const result = await service.update(movieId, updateMovieDto);
+
+      expect(result.title).toBe(updateMovieDto.title);
+      expect(result.detail.detail).toBe(updateMovieDto.detail);
+      expect(result.director.id).toBe(updateMovieDto.directorId);
+      expect(result.genres.map((g) => g.id)).toEqual(updateMovieDto.genreIds);
+    });
+
+    it('should throw NotFoundException if movie does not exist', async () => {
+      const updateMovieDto: UpdateMovieDto = {
+        title: 'Updated Movie',
+        detail: 'Updated Movie Detail',
+        directorId: directors[1].id,
+        genreIds: [genres[0].id],
+      };
+
+      await expect(service.update(999, updateMovieDto)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });
