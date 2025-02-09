@@ -225,4 +225,17 @@ describe('MovieService - Integration Test', () => {
       );
     });
   });
+
+  describe('remove', () => {
+    it('should remove movie correctly', async () => {
+      const removedId = movies[0].id;
+      const result = await service.remove(removedId);
+
+      expect(result).toBe(removedId);
+    });
+
+    it('should throw NotFoundException if movie does not exist', async () => {
+      await expect(service.remove(999)).rejects.toThrow(NotFoundException);
+    });
+  });
 });
